@@ -115,7 +115,7 @@ function App() {
 如果你想在渲染时使用数据更改的结果，你可以从 `useMutation` 的返回值中获得它。
 
 ```jsx
-const { trigger, data, error } = useSWRMutation({ mutation: addTodoMutation });
+const { trigger, data, error } = useMutation({ mutation: addTodoMutation });
 ```
 
 ## 乐观更新 [#optimistic-updates]

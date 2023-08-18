@@ -31,23 +31,20 @@ function Dashboard() {
     refetchInterval: false,
   });
 
-
   // ...
 }
 
 const queryClient = createQueryClient({
-    queries: {
-       refetchInterval: 3000,
-    },
-})
+  queries: {
+    refetchInterval: 3000,
+  },
+});
 
 function App() {
   return (
-    <QueryClientProvider
-      client={queryClient}
-    >
+    <QueryClientProvider client={queryClient}>
       <Dashboard />
-    </SWRConfig>
+    </QueryClientProvider>
   );
 }
 ```
@@ -57,7 +54,7 @@ function App() {
 你可以使用 `getDefaultOptions` 函数来获取全局配置：
 
 ```jsx
-import { useQueryClient } from "swr";
+import { useQueryClient } from "quaere";
 
 function Component() {
   const queryClient = useQueryClient();

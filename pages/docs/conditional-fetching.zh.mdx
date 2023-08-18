@@ -4,7 +4,7 @@
 
 ```js
 // 有条件的请求
-const { data } = useSWR({
+const { data } = useQuery({
   query: userQuery,
   variables: { userId },
   enabled: !!userId,
@@ -17,8 +17,8 @@ Quaere 还允许请求依赖于其他数据的数据。当需要一段动态数�
 
 ```js
 function MyProjects() {
-  const { data: user } = useSWR({ query: userQuery });
-  const { data: projects } = useSWR({
+  const { data: user } = useQuery({ query: userQuery });
+  const { data: projects } = useQuery({
     query: projectsQuery,
     enabled: !!user,
   });

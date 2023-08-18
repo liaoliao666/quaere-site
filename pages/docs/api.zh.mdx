@@ -26,7 +26,7 @@ const { data, error, isLoading, isFetching, refetch, setData } = useQuery({
 
 - `data`：由 `fetcher` 解析的给定 `variables` 的数据（如果未加载，则 `undefined`）
 - `error`： `fetcher` 引发的错误（或 `undefined`）
-- `isPending`：如果有正在进行的请求，但没有 "加载的数据"。以前的数据不视为 "加载数据"。
+- `isLoading`：如果有正在进行的请求，但没有 "加载的数据"。以前的数据不视为 "加载数据"。
 - `isFetching`：如果正在加载请求或重新验证数据
 - `setData(data?,options?)`：更改缓存数据的函数
 - `refetch()`: 重新查询

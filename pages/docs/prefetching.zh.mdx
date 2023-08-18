@@ -23,7 +23,7 @@ const userQuery = query({
 queryClient.prefetch({ query: userQuery, variables: { id: 1 } })
 
 function User() {
-  const { data } = useSWR({ query: userQuery, variables: { id: 1 } })
+  const { data } = useQuery({ query: userQuery, variables: { id: 1 } })
   ...
 }
 
@@ -81,7 +81,7 @@ queryClient.prefetch({ query: userQuery });
 queryClient.prefetch({ query: moviesQuery });
 
 const Page = () => {
-  // The below useSWR hooks will suspend the rendering, but the requests to `/api/user` and `/api/movies` have started by `preload` already,
+  // The below useQuery hooks will suspend the rendering, but the requests to `/api/user` and `/api/movies` have started by `preload` already,
   // so the waterfall problem doesn't happen.
   const { data: user } = useQuery({ query: userQuery, suspense: true });
   const { data: movies } = useQuery({ query: moviesQuery, suspense: true });
@@ -105,4 +105,4 @@ useQuery({
 });
 ```
 
-当 SWR 还没有获取此次数据的时候， 这个 hook 将返回 `initialData` 作为 fallback 。
+当 Quaere 还没有获取此次数据的时候， 这个 hook 将返回 `initialData` 作为 fallback 。

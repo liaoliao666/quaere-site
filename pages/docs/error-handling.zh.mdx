@@ -14,7 +14,7 @@ const anQuery = query({
 const { data, error } = useQuery({ query: anQuery });
 ```
 
-如果 fetch promise 被拒绝，将定义 `error` 对象。
+如果 fetch promise 被 reject，将定义 `error` 对象。
 
 ## 状态码和错误对象 [#status-code-and-error-object]
 
@@ -59,7 +59,7 @@ const { data, error } = useQuery({ query: anQuery });
 
 ## 错误重试 [#error-retry]
 
-在出现错误时 SWR 使用[指数退避算法](https://en.wikipedia.org/wiki/Exponential_backoff)重发请求。该算法允许应用从错误中快速恢复，而不会浪费资源频繁地重试。
+在出现错误时 Quaere 使用[指数退避算法](https://en.wikipedia.org/wiki/Exponential_backoff)重发请求。该算法允许应用从错误中快速恢复，而不会浪费资源频繁地重试。
 
 你还可以通过 [retry](/docs/api#options) 和 [retryDelay](/docs/api#options) 选项覆盖该行为：
 
@@ -93,5 +93,5 @@ const queryClient = createQueryClient({
 
 <QueryClientProvider client={queryClient}>
   <App />
-</SWRConfig>
+</QueryClientProvider>
 ```
