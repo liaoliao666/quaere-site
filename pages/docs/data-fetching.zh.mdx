@@ -1,0 +1,53 @@
+# 数据请求
+
+```ts
+const anQuery = query({
+  fetcher: (variables: TVars, context: QueryFunctionContext) => Promise<TData>,
+});
+```
+
+这里的 fetcher 是一个异步函数，它接受 variables 并返回数据。
+
+返回值将作为 data 传递，如果抛出错误，将作为 error 被捕获。
+
+## Fetch [#fetch]
+
+你可以使用任何库来处理数据请求，比如 `fetch`
+
+```js
+const anQuery = query({ fetcher: () => fetch(url).then((r) => r.json()) });
+```
+
+## Axios [#axios]
+
+```js
+import axios from "axios";
+
+const anQuery = query({
+  fetcher: (variables) => axios.get(url, variables).then((res) => res.data),
+});
+```
+
+## GraphQL [#graphql]
+
+或者配合类似 [graphql-request](https://github.com/prisma-labs/graphql-request) 的库使用 GraphQL：
+
+```js
+import { request } from "graphql-request";
+
+const anQuery = query({
+  fetcher: (variables) =>
+    request({
+      url: "/api/graphql",
+      document: `{
+      Movie(title: "Inception") {
+        releaseDate
+        actors {
+          name
+        }
+      }
+    }`,
+      variables,
+    }),
+});
+```

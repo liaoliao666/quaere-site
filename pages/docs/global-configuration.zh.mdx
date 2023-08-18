@@ -1,0 +1,69 @@
+# 全局配置
+
+`QueryClientProvider` 可以为所有的 Quaere hook 提供全局配置 ([选项](/docs/api#options))。
+
+```tsx
+const queryClient = createQueryClient({
+    queries: {
+      // query options
+    },
+    mutations: {
+      // mutation options
+    }
+})
+
+<QueryClientProvider client={queryClient}>
+  <Component />
+</QueryClientProvider>
+```
+
+在以下示例中，所有的 Quaere hook 都将使用提供的相同的 refetchInterval，默认每 3 秒刷新一次：
+
+```tsx
+import { useQuery, createQueryClient, QueryClientProvider } from "quaere";
+
+function Dashboard() {
+  const { data: events } = useQuery({ query: eventsQuery });
+  const { data: projects } = useQuery({ query: projectsQuery });
+  const { data: user } = useQuery({
+    query: userQuery,
+    // override
+    refetchInterval: false,
+  });
+
+
+  // ...
+}
+
+const queryClient = createQueryClient({
+    queries: {
+       refetchInterval: 3000,
+    },
+})
+
+function App() {
+  return (
+    <QueryClientProvider
+      client={queryClient}
+    >
+      <Dashboard />
+    </SWRConfig>
+  );
+}
+```
+
+### 访问全局配置 [#access-to-global-configurations]
+
+你可以使用 `getDefaultOptions` 函数来获取全局配置：
+
+```jsx
+import { useQueryClient } from "swr";
+
+function Component() {
+  const queryClient = useQueryClient();
+
+  console.log(queryClient.getDefaultOptions());
+
+  // ...
+}
+```

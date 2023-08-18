@@ -1,0 +1,108 @@
+# 预请求数据
+
+## 手动预请求 [#programmatically-prefetch]
+
+QueryClient 提供了预取 `prefetch` API，用于以编程方式预取资源并将结果存储在缓存中。`prefetch` 接受查询 `query` 和 `variables` 作为参数。
+
+你甚至可以在 React 之外调用 `prefetch`。
+
+```jsx
+import { useState } from 'react'
+import { createQueryClient } from 'quaere'
+
+
+const queryClient = createQueryClient()
+
+const userQuery = query({
+  fetcher: (variables: { id: number }) => fetch('/api/user?id=' + variables.id).then(res => res.json()),
+});
+
+// Preload the resource before rendering the User component below,
+// this prevents potential waterfalls in your application.
+// You can also start preloading when hovering the button or link, too.
+queryClient.prefetch({ query: userQuery, variables: { id: 1 } })
+
+function User() {
+  const { data } = useSWR({ query: userQuery, variables: { id: 1 } })
+  ...
+}
+
+export default function App() {
+  const [show, setShow] = useState(false)
+  return (
+    <div>
+      <button onClick={() => setShow(true)}>Show User</button>
+      {show ? <User /> : null}
+    </div>
+  )
+}
+```
+
+Within React rendering tree, `prefetch` is also available to use in event handlers or effects.
+
+在 React 渲染树内部，`prefetch` 也可以在事件处理程序或副作用中使用。
+
+```jsx
+function App({ userId }) {
+  const [show, setShow] = useState(false)
+
+  // preload in effects
+  useEffect(() => {
+    queryClient.prefetch({ query: userQuery, variables: { id: userId } })
+  }, [userId])
+
+  return (
+    <div>
+      <button
+        onClick={() => setShow(true)}
+        {/* preload in event callbacks */}
+        onHover={() => queryClient.prefetch({ query: userQuery, variables: { id: userId } })}
+      >
+        Show User
+      </button>
+      {show ? <User /> : null}
+    </div>
+  )
+}
+```
+
+在 Suspense 模式下，你应该使用 `prefetch` 来避免瀑布流问题。
+
+```jsx
+const userQuery = query({
+  fetcher: () => fetch("/api/user").then((res) => res.json()),
+});
+const moviesQuery = query({
+  fetcher: () => fetch("/api/movies").then((res) => res.json()),
+});
+
+// should call before rendering
+queryClient.prefetch({ query: userQuery });
+queryClient.prefetch({ query: moviesQuery });
+
+const Page = () => {
+  // The below useSWR hooks will suspend the rendering, but the requests to `/api/user` and `/api/movies` have started by `preload` already,
+  // so the waterfall problem doesn't happen.
+  const { data: user } = useQuery({ query: userQuery, suspense: true });
+  const { data: movies } = useQuery({ query: moviesQuery, suspense: true });
+  return (
+    <div>
+      <User user={user} />
+      <Movies movies={movies} />
+    </div>
+  );
+};
+```
+
+## 数据预填充 [#pre-fill-data]
+
+如果你想在 Quaere 缓存中预填充已经存在的数据，你可以使用 `initialData` 选项，例如：
+
+```jsx
+useQuery({
+  query: userQuery,
+  initialData: prefetchedData,
+});
+```
+
+当 SWR 还没有获取此次数据的时候， 这个 hook 将返回 `initialData` 作为 fallback 。

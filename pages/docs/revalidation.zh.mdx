@@ -1,0 +1,69 @@
+import { Callout } from "nextra-theme-docs";
+import Link from "next/link";
+
+# 自动重新请求
+
+<Callout>
+  如果你想手动重新请求数据，请查看 <Link href="/docs/mutation">mutation</Link>。
+</Callout>
+
+## 聚焦时重新请求 [#refetch-on-window-focus]
+
+当你重新聚焦一个页面或在标签页之间切换时，Quaere 会自动重新请求数据。
+
+这个功能非常实用，可以保持网站同步到最新数据。对于在长时间位于后台的标签页，或 **休眠** 的电脑等情况下刷新数据也很有帮助。
+
+该特性默认是启用的。你可以通过 [`refetchOnWindowFocus`](/docs/api) 选项禁用它。
+
+## 定期重新请求 [#refetch-interval]
+
+在很多情况下，数据会因为多个设备、多个用户、多个选项卡而发生改变。那么我们如何随着时间的推移更新屏幕上的数据呢？
+
+Quaere 会为你提供自动重新请求数据的选项。这很 **智能**，意味着只有与 hook 相关的组件 **在屏幕上** 时，才会重新请求。
+
+你可以通过设置 [`refetchInterval`](/docs/api) 值来启用它：
+
+```js
+useQuery({ query: anQuery, refreshInterval: 1000 });
+```
+
+## 重新连接时重新请求 [#refetch-on-reconnect]
+
+当用户重新联机时重新请求非常有用。这种情况经常发生在用户解锁了他们的计算机但网络还没有连上时。
+
+为了确保数据始终是最新的，Quaere 会在网络恢复时自动重新请求。
+
+该特性默认是启用的。你可以通过 [`refetchOnReconnect`](/docs/api) 选项禁用它。
+
+## 禁用自动重新请求 [#disable-automatic-revalidations]
+
+如果资源是**不可变的**，即使我们再怎么重新请求也永远不会发生任何改变，那么我们可以禁用它的所有的自动重新请求。
+
+```js
+queryWithImmutable({
+  fetcher,
+});
+
+// 相当于
+query({
+  fetcher,
+  refetchInterval: false,
+  refetchOnMount: false,
+  refetchOnReconnect: false,
+  refetchOnWindowFocus: false,
+  gcTime: Infinity,
+  staleTime: Infinity,
+});
+```
+
+上面这两个函数 做**完全相同的**事情。一旦数据被缓存，他们将永远不会再次请求它。
+
+## 挂载时重新请求 [#refetch-on-mount]
+
+refetchOnMount 参数是一个非常实用的功能，它可以在组件挂载时自动重新请求数据。
+
+默认情况下，refetchOnMount 被设置为 true。这意味着当组件挂载时，数据会被标记为过期，从而触发重新获取查询数据的操作。这保证了用户总是能够获取最新的数据。
+
+如果您需要更细粒度地控制数据的重新获取行为，您可以将 refetchOnMount 设置为 false。这样，查询将不会在组件挂载时重新获取，您可以根据其他条件来手动触发数据的更新。
+
+另外，我们还提供了一个特殊的值 "always"，如果将 refetchOnMount 设置为 "always"，无论数据是否过期，都会在组件挂载时强制重新获取数据。这对于需要确保数据实时性的场景非常有用。

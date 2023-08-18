@@ -1,0 +1,161 @@
+import { Callout } from "nextra-theme-docs";
+
+# 无限加载
+
+有时我们想构建一个**无限加载**的界面，通过一个 "Load More" 按钮向列表追加数据（或者当你滚动时自动加载）：
+
+import { Infinite } from "components/diagrams/infinite";
+
+<div className="mt-8">
+  <Infinite />
+</div>
+
+Quaere 提供了一个专用 API `queryWithInfinite` 来支持常见的 UI 模式，比如 **分页** 和 **无限加载**。
+
+## queryWithInfinite [#query-with-infinite]
+
+`queryWithInfinite` 让我们能够通过一个 Hook 触发多个请求。就像下面这样：
+
+```tsx
+const projectsQuery = queryWithInfinite({
+  fetcher: (variables, { pageParam }) =>
+    axios.get(`/api/projects`, {
+      ...variables,
+      page: pageParam,
+    }),
+  defaultPageParam: 0,
+  getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
+  getPreviousPageParam: (firstPage, pages) => firstPage.prevCursor,
+  ...options,
+});
+
+// ...
+const {
+  isFetchingNextPage,
+  isFetchingPreviousPage,
+  fetchNextPage,
+  fetchPreviousPage,
+  hasNextPage,
+  hasPreviousPage,
+  ...result
+} = useQuery({ query: projectsQuery });
+```
+
+## API [#api]
+
+### 返回值 [#return-values]
+
+当 `useQuery` 传入 `queryWithInfinite` 与传入 `query` 时的返回值完全相同，只是新增了以下内容：
+
+- `data.pages: TData[]`
+
+  - 包含所有页面的数组。
+
+- `data.pageParams: number[]`
+
+  - 包含所有页面参数的数组。
+
+- `isFetchingNextPage: boolean`
+
+  - 在使用 `fetchNextPage` 获取下一页时为 `true`。
+
+- `isFetchingPreviousPage: boolean`
+
+  - 在使用 `fetchPreviousPage` 获取上一页时为 `true`。
+
+- `fetchNextPage: (options?: FetchNextPageOptions) => Promise<TData>`
+
+  - 此函数允许您获取下一页的结果。
+  - `options.cancelRefetch: boolean`，如果设置为 `true`，多次调用 `fetchNextPage` 将每次调用 `fetchPage`，无论之前的调用是否已解决。同时，忽略之前调用的结果。如果设置为 `false`，多次调用 `fetchNextPage` 在第一个调用未解决之前不会产生任何影响。默认值为 `true`。
+
+- `fetchPreviousPage: (options?: FetchPreviousPageOptions) => Promise<TData>`
+
+  - 此函数允许您获取上一页的结果。
+  - `options.cancelRefetch: boolean`，与 `fetchNextPage` 相同。
+
+- `hasNextPage: boolean`
+
+  - 如果有下一页要获取（通过 `getNextPageParam` 选项得知），则为 `true`。
+
+- `hasPreviousPage: boolean`
+  - 如果有上一页要获取（通过 `getPreviousPageParam` 选项得知），则为 `true`。
+
+### 选项 [#options]
+
+`queryWithInfinite` 的选项与 `query` 钩子完全相同，只是新增了以下内容：
+
+- `defaultPageParam: number`
+
+  - **必需**
+  - 获取第一页时使用的默认页参数。
+
+- `getNextPageParam: (lastPage, allPages, lastPageParam, allPageParams) => number | undefined | null`
+
+  - **必需**
+  - 当接收到此查询的新数据时，该函数接收无限数据列表的最后一页和所有页面的完整数组，以及页参数信息。
+  - 应返回一个**数字**，该数字将作为您查询函数的最后一个可选参数传递。
+  - 返回`undefined`或`null`表示没有下一页可用。
+
+- `getPreviousPageParam: (firstPage, allPages, firstPageParam, allPageParams) => number | undefined | null`
+  - 当接收到此查询的新数据时，该函数接收无限数据列表的第一页和所有页面的完整数组，以及页参数信息。
+  - 应返回一个**数字**，该数字将作为您查询函数的最后一个可选参数传递。
+  - 返回`undefined`或`null`表示没有上一页可用。
+
+### 示例
+
+```tsx
+import { useInfiniteQuery } from "@tanstack/react-query";
+
+const projectsQuery = queryWithInfinite({
+  fetcher: (variables, { pageParam }) =>
+    axios.get(`/api/projects`, {
+      ...variables,
+      cursor: pageParam,
+    }),
+  defaultPageParam: 0,
+  getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
+});
+
+function Projects() {
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    isLoading,
+  } = useQuery({
+    query: projectsQuery,
+  });
+
+  return isLoading ? (
+    <p>Loading...</p>
+  ) : status === "error" ? (
+    <p>Error: {error.message}</p>
+  ) : (
+    <>
+      {data.pages.map((group, i) => (
+        <React.Fragment key={i}>
+          {group.data.map((project) => (
+            <p key={project.id}>{project.name}</p>
+          ))}
+        </React.Fragment>
+      ))}
+      <div>
+        <button
+          onClick={() => fetchNextPage()}
+          disabled={!hasNextPage || isFetchingNextPage}
+        >
+          {isFetchingNextPage
+            ? "Loading more..."
+            : hasNextPage
+            ? "Load More"
+            : "Nothing more to load"}
+        </button>
+      </div>
+      <div>{isFetching && !isFetchingNextPage ? "Fetching..." : null}</div>
+    </>
+  );
+}
+```

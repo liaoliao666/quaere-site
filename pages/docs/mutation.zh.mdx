@@ -1,0 +1,166 @@
+# 数据更改 & 重新验证
+
+Quaere 提供了 `mutation` 和它的 `useMutation` 作为一个远程数据更改的 hook。远程数据更改只能手动触发，而不像 `useQuery` 那样会自动触发。
+
+另外，这个 hook 不会与其他 `useMutation` hook 共享状态。
+
+```ts
+const anMutation = mutation({
+  // 必选，用于请求数据的函数。
+  fetcher: (variables: TVars, context: MutationFunctionContext) =>
+    Promise<TData>,
+  // 选项
+  ...options,
+});
+```
+
+```ts
+const { data, error, trigger, reset, isMutating } = useMutation({
+  mutation: anMutation,
+  // 将会覆盖 mutation 函数中的选项
+  ...options,
+});
+```
+
+## API [#api]
+
+### 返回值 [#return-values]
+
+- `data`：从 `fetcher` 返回给定 key 的数据
+- `error`：`fetcher` 中抛出的错误（或 undefined）
+- `trigger(variables)`：一个用于触发远程数据更改的函数
+- `reset`：一个用于重置状态的函数（ `data`, `error`, `isMutating` ）
+- `isMutating`：有一个正在进行中的远程数据变更
+
+### 选项 [#parameters]
+
+- `gcTime: number | Infinity`
+
+  - 未使用或非活动缓存数据在内存中保留的时间，以毫秒为单位。当缓存数据变为未使用或非活动状态时，将在指定的持续时间后进行垃圾回收。如果设置了不同的缓存时间，将使用最长的时间。
+  - 如果设置为 `Infinity`，将禁用垃圾回收。
+
+- `networkMode: 'online' | 'always' | 'offlineFirst'`
+
+  - 默认值为 `'online'`
+  - 参见 [Network Mode](../guides/network-mode) 获取更多信息。
+
+- `onSuccess: (data: TData, variables: TVariables, obsMutation: ObservableMutation) => Promise<unknown> | unknown`
+
+  - 此函数将在请求成功时触发，并传递请求的结果。
+  - 如果返回一个 Promise，将在继续之前等待和解析该 Promise。
+
+- `onError: (err: TError, variables: TVariables, obsMutation: ObservableMutation) => Promise<unknown> | unknown`
+
+  - 如果请求遇到错误，将触发此函数，并传递错误。
+  - 如果返回一个 Promise，将在继续之前等待和解析该 Promise。
+
+- `onSettled: (data: TData, error: TError, variables: TVariables, obsMutation: ObservableMutation) => Promise<unknown> | unknown`
+
+  - 此函数将在请求成功获取数据或遇到错误时触发，并传递数据或错误。
+  - 如果返回一个 Promise，将在继续之前等待和解析该 Promise。
+
+- `retry: boolean | number | (failureCount: number, error: TError) => boolean`
+
+  - 默认值为 `0`
+  - 如果为 `false`，失败的请求将不会重试。
+  - 如果为 `true`，失败的请求将无限重试。
+  - 如果设置为一个数字，例如 `3`，则失败的请求将重试，直到失败次数达到该数字为止。
+
+- `retryDelay: number | (retryAttempt: number, error: TError) => number`
+
+  - 此函数接收一个 `retryAttempt` 整数和实际错误，并返回下一次尝试之前的延迟时间（以毫秒为单位）。
+  - 像 `attempt => Math.min(attempt > 1 ? 2 ** attempt * 1000 : 1000, 30 * 1000)` 这样的函数应用指数回退。
+  - 像 `attempt => attempt * 1000` 这样的函数应用线性回退。
+
+- `throwOnError: undefined | boolean | (error: TError) => boolean`
+
+  - 默认值为全局查询配置的 `throwOnError` 值，即 `undefined`
+  - 如果希望在渲染阶段抛出请求错误并传播到最近的错误边界，则将其设置为 `true`
+  - 将其设置为 `false` 以禁用将错误抛出到错误边界的行为。
+  - 如果设置为一个函数，它将接收错误并返回一个布尔值，表示是否在错误边界中显示错误（`true`）或将错误返回为状态（`false`）。
+
+- `meta: Record<string, unknown>`
+
+  - 如果设置，则存储附加信息, 可以通过 `fetcher` 的第二个参数 `MutationFunctionContext` 的 `meta` 属性读取。
+
+## 基本用法 [#basic-usage]
+
+```tsx
+import { mutation, useMutation } from "quaere";
+
+const updateUserMutation = mutation({
+  fetcher: (user) => axios.post("/user", user),
+});
+
+function App() {
+  const { trigger, isMutating } = useMutation({ mutation: updateUserMutation });
+
+  return (
+    <button
+      disabled={isMutating}
+      onClick={async () => {
+        try {
+          const result = await trigger({ name: "johndoe" });
+        } catch (e) {
+          // 错误处理
+        }
+      }}
+    >
+      Update User
+    </button>
+  );
+}
+```
+
+如果你想在渲染时使用数据更改的结果，你可以从 `useMutation` 的返回值中获得它。
+
+```jsx
+const { trigger, data, error } = useSWRMutation({ mutation: addTodoMutation });
+```
+
+## 乐观更新 [#optimistic-updates]
+
+很多情况下，应用本地的数据更改是一个让人感觉快速的好方法——不需要等待远程数据源。
+
+```jsx
+const updateUserMutation = mutation({
+  fetcher: (user) => axios.post("/user", user),
+});
+
+const userQuery = query({
+  fetcher: () => axios.get("/user"),
+});
+
+function Profile() {
+  const { trigger, isMutating } = useMutation({ mutation: updateUserMutation });
+  const { data, setData, refetch } = useQuery({ query: userQuery });
+
+  return (
+    <div>
+      <h1>My name is {data.name}.</h1>
+      <button
+        disabled={isMutating}
+        onClick={async () => {
+          try {
+            const newName = data.name.toUpperCase();
+            const user = { ...data, name: newName };
+
+            // 立即更新本地数据
+            setData(user);
+            // 发送一个请求以更新数据
+            await trigger(user);
+          } catch (error) {
+            // 请求错误，执行回滚
+            setData(data);
+          } finally {
+            // 错误或成功后重新获取数据
+            refetch();
+          }
+        }}
+      >
+        Uppercase my name!
+      </button>
+    </div>
+  );
+}
+```

@@ -1,0 +1,109 @@
+# API
+
+```ts
+const anQuery = query({
+  // 如果设置了 key，dehrydrate 函数将会保留该 query。
+  key: string,
+  // 必选，用于请求数据的函数。
+  fetcher: (variables: TVars, context: QueryFunctionContext) => Promise<TData>,
+  // 选项
+  ...options,
+});
+```
+
+```ts
+const { data, error, isLoading, isFetching, refetch, setData } = useQuery({
+  // 必选，用于读取状态中的该 `query` 所对应的值。
+  query: anQuery,
+  // 传入 `fetcher` 函数的变量
+  variables: TVars,
+  // 将会覆盖 query 函数中的选项
+  ...options,
+});
+```
+
+## 返回值 [#return-values]
+
+- `data`：由 `fetcher` 解析的给定 `variables` 的数据（如果未加载，则 `undefined`）
+- `error`： `fetcher` 引发的错误（或 `undefined`）
+- `isPending`：如果有正在进行的请求，但没有 "加载的数据"。以前的数据不视为 "加载数据"。
+- `isFetching`：如果正在加载请求或重新验证数据
+- `setData(data?,options?)`：更改缓存数据的函数
+- `refetch()`: 重新查询
+- `reset()`: 重置
+
+## 选项 [#options]
+
+- `enabled: boolean | ((data: TData, variables: TVars) => boolean)`
+  - 将此设置为 false 以禁用此查询自动运行。
+  - 如果设置为函数，该函数将使用最新数据和变量执行以计算布尔值
+- `networkMode: 'online' | 'always' | 'offlineFirst`
+  - 默认为 `'online'`
+  - see [Network Mode](../guides/network-mode) for more information.
+- `retry: boolean | number | (failureCount: number, error: TError) => boolean`
+  - 如果 `false`，默认情况下不会重试失败的查询。
+  - 如果设置为 `true`，失败的查询将无限重试。
+  - 如果设置为`数字`，例如`3`，失败的查询将重试，直到失败的查询次数达到该数字。
+- `retryOnMount: boolean`
+  - 如果设置为 "false"，则在挂载时不会重试包含错误的查询。默认为 `true`。
+- `retryDelay: number | (retryAttempt: number, error: TError) => number`
+  - 该函数接收一个 `retryAttempt` 整数和 `error`，并返回下一次重试前的延迟时间（以毫秒为单位）。
+- `staleTime: number | Infinity`
+  - 默认为 `0`.
+  - 数据被视为过期后的时间（毫秒）。此值只适用于它所定义的钩子。
+  - 如果设置为 `Infinity`，数据将永远不会被视为过期
+- `gcTime: number | Infinity`
+  - 默认为 `5 * 60 * 1000`（5 分钟），在 SSR 期间时或未设置 `fetcher` 时为 `Infinity`
+  - 未使用/未激活的缓存数据在内存中保留的时间（以毫秒为单位）。当查询的缓存变得未使用或不活动时，缓存数据将在此时间后被垃圾回收。如果指定了不同的垃圾回收时间，将使用最长的时间。
+  - 如果设置为 `Infinity`，将禁用垃圾回收。
+- `hashKeyFn: (queryKey: [Key, TVars]) => string`
+  - 如果指定，该函数用于将 `queryKey` 散列为字符串。
+- `refetchInterval: number | false | ((data: TData | undefined, obsQuery: ObservableQuery) => number | false | undefined)`
+  - 可选
+  - 如果设置为数字，查询都将以该频率（毫秒）为单位持续重新获取数据
+  - 如果设置为函数，该函数将使用最新数据和查询执行，以计算出频率
+- `refetchIntervalInBackground: boolean`
+  - 如果设置为 `true`，使用 `refetchInterval` 设置为持续重新获取的查询将在其标签页/窗口处于后台时继续重新获取。
+- `refetchOnMount: boolean | "always" | ((obsQuery: ObservableQuery) => boolean | "always")`
+  - 默认为 `true`
+  - 如果设置为 `true`，数据过期时将在挂载时重新获取。
+  - 如果设置为 `false`，查询不会在挂载时重新获取。
+  - 如果设置为 `always`，查询将始终在挂载时重新获取。
+  - 如果设置为函数，该函数将与查询一起执行，以计算值
+- `refetchOnWindowFocus: boolean | "always" | ((obsQuery: ObservableQuery) => boolean | "always")`
+  - 默认为 `true`
+  - 如果设置为 `true`，查询将在数据过期时根据窗口焦点重新获取。
+  - 如果设置为 `false`，查询将不会在窗口聚焦时重新获取。
+  - 如果设置为 `always`，查询将始终在窗口聚焦时重新获取。
+  - 如果设置为函数，该函数将与查询一起执行，以计算值
+- `refetchOnReconnect: boolean | "always" | ((obsQuery: ObservableQuery) => boolean | "always")`
+  - 可选
+  - 默认为 `true`
+  - 如果设置为 `true`，如果数据过期，查询将在重新连接时重新获取。
+  - 如果设置为 `false`，则重新连接时不会重新获取查询。
+  - 如果设置为 `always`，则查询将始终在重新连接时重新获取。
+  - 如果设置为函数，则该函数将与查询一起执行以计算值
+- `suspense: boolean`
+  - 将其设置为 `true` 以启用 Suspense 模式。
+  - 当 `true` 时，`useQuery` 将在 `status === 'pending'` 时挂起
+  - 当 `true` 时，`useQuery` 将在 `status === 'error'` 时抛出运行时错误
+- `initialData: TData | () => TData`
+  - 如果设置，该值将用作查询缓存的初始数据（只要查询尚未创建或缓存）
+  - 如果设置为函数，该函数将在共享/根查询初始化期间被调用**一次**，并预计同步返回 initialData
+  - 默认情况下，除非设置了 `staleTime`，否则初始数据被认为是过期的。
+  - `initialData` **被持久化**到缓存
+- `initialDataUpdatedAt: number | (() => number | undefined)`
+  - 如果设置了该值，则该值将被用作 `initialData ` 本身最后一次更新的时间（以毫秒为单位）。
+- `keepPreviousData: boolean`
+  - 在加载新数据前保留以前的数据，默认为 false
+- `structuralSharing: boolean | ((oldData: TData | undefined, newData: TData) => TData)`
+  - 默认为 `true`
+  - 如果设置为 `false`，查询结果之间的结构共享将被禁用。
+  - 如果设置为函数，新旧数据值将通过该函数传递，该函数将把它们合并为查询的解析数据。这样，即使数据包含不可序列化的值，也可以保留旧数据的引用，从而提高性能。
+- `throwOnError: undefined | boolean | (error: TError, obsQuery: ObservableQuery) => boolean`
+  - 默认为全局查询配置的 `throwOnError` 值，即 `undefined`
+  - 如果希望在 render 阶段抛出错误并传播到最近的 ErrorBoundary，则将其设置为 `true`
+  - 设为 `false` 可禁用 `suspense` 的默认行为，即向 ErrorBoundary 抛出错误。
+  - 如果将其设置为函数，则会传递错误和查询，并返回一个布尔值，表明是在 ErrorBoundary 中显示错误（`true`），还是将错误作为状态返回（`false`）。
+- `meta: Record<string, unknown>`
+  - 如果设置，则存储附加信息, 可以通过 `fetcher` 的第二个参数 `QueryFunctionContext` 的 `meta` 属性读取。

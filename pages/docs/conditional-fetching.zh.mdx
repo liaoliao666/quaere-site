@@ -1,0 +1,29 @@
+# 条件数据请求
+
+## 按需请求 [#conditional]
+
+```js
+// 有条件的请求
+const { data } = useSWR({
+  query: userQuery,
+  variables: { userId },
+  enabled: !!userId,
+});
+```
+
+## 依赖请求 [#dependent]
+
+Quaere 还允许请求依赖于其他数据的数据。当需要一段动态数据才能进行下一次数据请求时，它可以确保最大程度的并行性（avoiding waterfalls）以及串行请求。
+
+```js
+function MyProjects() {
+  const { data: user } = useSWR({ query: userQuery });
+  const { data: projects } = useSWR({
+    query: projectsQuery,
+    enabled: !!user,
+  });
+
+  if (!projects) return "loading...";
+  return "You have " + projects.length + " projects";
+}
+```

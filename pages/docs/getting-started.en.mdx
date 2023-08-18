@@ -1,0 +1,53 @@
+import { Callout, Tabs, Tab } from "nextra-theme-docs";
+
+# 入门
+
+## 什么是 Quaere[ˋkwɪrɪ]
+
+Quaere 是一款服务端状态管理优先的状态管理库，同时也支持客户端状态管理。它的核心实现类似于 [Tanstack Query](https://github.com/tanstack/query) 和 [Jotai](https://github.com/pmndrs/jotai)，并提供了一套声明式的、原子化的状态管理方案，帮助你高效地管理服务端状态和客户端状态。无论是简单还是复杂的，Suspend Query 都可以胜任。
+
+## 安装 [#installation]
+
+<Tabs items={['pnpm', 'npm', 'yarn']}>
+  <Tab>
+    ```shell
+    pnpm add quaere
+    ```
+  </Tab>
+
+{" "}
+
+<Tab>```shell npm i quaere ```</Tab>
+
+  <Tab>
+    ```shell
+    yarn add quaere
+    ```
+  </Tab>
+</Tabs>
+
+## 快速上手 [#quick-start]
+
+下面是一个最基本的示例：
+
+```ts
+import { query } from "quaere";
+
+const anQuery = query({
+  fether: (variables) => axios.get(url, variables),
+});
+```
+
+```ts
+import { useQuery } from "quaere";
+
+function Example() {
+  const { data } = useQuery({ query: anQuery, variables });
+}
+```
+
+上面的示例展示了 Quaere 的两个核心函数：
+
+- query：用于创建一个异步资源解析配置，我们称其为 "查询配置"。
+
+- useQuery：该 hook 用于读取 "查询配置" 发起请求，并且每个不同 `variables` 都会返回与其相应的服务端状态。
