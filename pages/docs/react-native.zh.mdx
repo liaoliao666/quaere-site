@@ -1,0 +1,43 @@
+import { Callout } from "nextra-theme-docs";
+
+# React Native
+
+与在浏览器中运行的 React 不同，React Native 有着非常不同的使用体验。比如没有“标签聚焦”，而从后台切换到 app 则被视为“聚焦”。要想自定义这些行为，你可以使用 React Native 的 app 状态检测和其他原生移植 API 替换默认的 `focus` 和 `online`，并配置 Quaere 来使用。
+
+## 在线状态管理
+
+Quaere 已经支持在 Web 浏览器中自动重新获取连接。要在 Quaere 中添加这个行为，您需要使用 Quaere 的 `onlineManager` ，示例如下：
+
+```tsx
+import NetInfo from "@react-native-community/netinfo";
+import { onlineManager } from "quaere";
+
+onlineManager.setEventListener((setOnline) => {
+  return NetInfo.addEventListener((state) => {
+    setOnline(!!state.isConnected);
+  });
+});
+```
+
+## 应用程序聚焦时重新请求
+
+与在`window`上添加事件监听器不同，React Native 通过 [`AppState`](https://reactnative.dev/docs/appstate#app-states) 模块提供了焦点信息。您可以使用 `AppState` 的"change"事件来触发更新，当应用程序状态变为"active"时：
+
+```tsx
+import { useEffect } from "react";
+import { AppState, Platform } from "react-native";
+import type { AppStateStatus } from "react-native";
+import { focusManager } from "@tanstack/react-query";
+
+function onAppStateChange(status: AppStateStatus) {
+  if (Platform.OS !== "web") {
+    focusManager.setFocused(status === "active");
+  }
+}
+
+useEffect(() => {
+  const subscription = AppState.addEventListener("change", onAppStateChange);
+
+  return () => subscription.remove();
+}, []);
+```

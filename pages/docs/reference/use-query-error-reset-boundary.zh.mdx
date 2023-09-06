@@ -1,0 +1,28 @@
+---
+id: useQueryErrorResetBoundary
+title: useQueryErrorResetBoundary
+---
+
+这个钩子将重置最近的 `QueryErrorResetBoundary` 内的任何查询错误。如果没有定义边界，它将在全局范围内重置这些错误：
+
+```tsx
+import { useQueryErrorResetBoundary } from "quaere";
+import { ErrorBoundary } from "react-error-boundary";
+
+const App: React.FC = () => {
+  const { reset } = useQueryErrorResetBoundary();
+  return (
+    <ErrorBoundary
+      onReset={reset}
+      fallbackRender={({ resetErrorBoundary }) => (
+        <div>
+          出现了一个错误！
+          <Button onClick={() => resetErrorBoundary()}>重试</Button>
+        </div>
+      )}
+    >
+      <Page />
+    </ErrorBoundary>
+  );
+};
+```

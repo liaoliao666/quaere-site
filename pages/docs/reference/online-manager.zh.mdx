@@ -1,0 +1,65 @@
+# OnlineManager
+
+`OnlineManager` 在 Quaere 中管理在线状态。它可以用于更改默认的事件侦听器或手动更改在线状态。
+
+> 默认情况下，`onlineManager` 假定有活动的网络连接，并监听 `window` 对象上的 `online` 和 `offline` 事件以检测更改。
+
+它的可用方法有：
+
+- [`setEventListener`](#onlinemanagerseteventlistener)
+- [`subscribe`](#onlinemanagersubscribe)
+- [`setOnline`](#onlinemanagersetonline)
+- [`isOnline`](#onlinemanagerisonline)
+
+## `onlineManager.setEventListener`
+
+`setEventListener` 用于设置自定义事件侦听器：
+
+```tsx
+import NetInfo from "@react-native-community/netinfo";
+import { onlineManager } from "@tanstack/react-query";
+
+onlineManager.setEventListener((setOnline) => {
+  return NetInfo.addEventListener((state) => {
+    setOnline(!!state.isConnected);
+  });
+});
+```
+
+## `onlineManager.subscribe`
+
+`subscribe` 用于订阅在线状态的更改。它返回一个取消订阅函数：
+
+```tsx
+import { onlineManager } from "@tanstack/react-query";
+
+const unsubscribe = onlineManager.subscribe((isOnline) => {
+  console.log("isOnline", isOnline);
+});
+```
+
+## `onlineManager.setOnline`
+
+`setOnline` 可以用于手动设置在线状态。
+
+```tsx
+import { onlineManager } from "@tanstack/react-query";
+
+// 设置为在线
+onlineManager.setOnline(true);
+
+// 设置为离线
+onlineManager.setOnline(false);
+```
+
+**选项**
+
+- `online: boolean`
+
+## `onlineManager.isOnline`
+
+`isOnline` 用于获取当前的在线状态。
+
+```tsx
+const isOnline = onlineManager.isOnline();
+```

@@ -1,0 +1,96 @@
+# MutationCache
+
+`MutationCache` 是用于存储突变的存储机制。
+
+**通常情况下，您不会直接与 `MutationCache` 互动，而是使用 `QueryClient。`**
+
+```tsx
+import { MutationCache } from "quaere";
+
+const mutationCache = new MutationCache({
+  onError: (error) => {
+    console.log(error);
+  },
+  onSuccess: (data) => {
+    console.log(data);
+  },
+});
+```
+
+它的可用方法包括：
+
+- [`getAll`](#mutationcachegetall)
+- [`subscribe`](#mutationcachesubscribe)
+- [`clear`](#mutationcacheclear)
+
+**Options**
+
+- `onError?: (error: unknown, variables: unknown, context: unknown, mutation: Mutation) => Promise<unknown> | unknown`
+  - 如果某个突变遇到错误，将调用此函数。
+  - 如果您从中返回一个 Promise，它将被等待
+- `onSuccess?: (data: unknown, variables: unknown, context: unknown, mutation: Mutation) => Promise<unknown> | unknown`
+  - 如果某个突变成功，将调用此函数。
+  - 如果您从中返回一个 Promise，它将被等待
+- `onSettled?: (data: unknown | undefined, error: unknown | null, variables: unknown, context: unknown, mutation: Mutation) => Promise<unknown> | unknown`
+  - 如果某个突变已完成（成功或出错），将调用此函数。
+  - 如果您从中返回一个 Promise，它将被等待
+- `onMutate?: (variables: unknown, mutation: Mutation) => Promise<unknown> | unknown`
+  - 如果某个突变执行之前，将调用此函数。
+  - 如果您从中返回一个 Promise，它将被等待
+
+## 全局回调
+
+`MutationCache` 上的 `onError`、` onSuccess``、onSettled ` 和 `onMutate` 回调可用于全局处理这些事件。它们与提供给 `QueryClient` 的 `defaultOptions` 不同，因为：
+
+- `defaultOptions` 可以被每个 `Mutation` 覆盖 - 全局回调将 始终 被调用。
+- `onMutate` 不允许返回上下文值。
+
+## `mutationCache.getAll`
+
+`getAll` 返回缓存中的所有变更。
+
+> 注意：大多数应用程序通常不需要这样做，但在稀有情况下需要更多关于变更的信息时可能会有用
+
+```tsx
+const mutations = mutationCache.getAll();
+```
+
+**返回**
+
+- `MutationInfo[]`
+  - 来自缓存的变更实例
+
+## `mutationCache.subscribe`
+
+`subscribe` 方法可用于订阅整个变更缓存，并在缓存的安全/已知更新（例如变更状态更改或变更更新、添加或删除）时获得通知。
+
+```tsx
+const callback = (event) => {
+  console.log(event.type, event.mutation);
+};
+
+// 订阅所有查询事件
+const unsubscribe = mutationCache.subscribe(callback);
+
+// 订阅特定的突变事件
+const unsubscribe = queryCache.subscribe({ mutation, variables }, callback);
+```
+
+**选项**
+
+- `filters?: MutationInfoFilters`: [突变过滤器](../guides/filters#mutation-filters)
+- `callback: (event?: MutationCacheNotifyEvent) => void`
+  - 每当缓存更新时，将调用此函数。
+
+**返回**
+
+- `unsubscribe: Function => void`
+  - 此函数将取消订阅回调函数。
+
+## `mutationCache.clear`
+
+`clear` 方法可用于完全清除缓存并重新开始。
+
+```tsx
+mutationCache.clear();
+```

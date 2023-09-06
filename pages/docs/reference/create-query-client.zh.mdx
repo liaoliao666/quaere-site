@@ -1,0 +1,458 @@
+# QueryClient
+
+## `QueryClient`
+
+`QueryClient`可以用于与缓存交互：
+
+```tsx
+import { createQueryClient } from "quaere";
+
+const queryClient = createQueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: Infinity,
+    },
+  },
+});
+```
+
+其可用方法包括：
+
+- [`queryClient.fetchQuery`](#queryclientfetchquery)
+- [`queryClient.prefetchQuery`](#queryclientprefetchquery)
+- [`queryClient.getQueryData`](#queryclientgetquerydata)
+- [`queryClient.ensureQueryData`](#queryclientensurequerydata)
+- [`queryClient.getQueriesData`](#queryclientgetqueriesdata)
+- [`queryClient.setQueryData`](#queryclientsetquerydata)
+- [`queryClient.getQueryState`](#queryclientgetquerystate)
+- [`queryClient.setQueriesData`](#queryclientsetqueriesdata)
+- [`queryClient.invalidateQueries`](#queryclientinvalidatequeries)
+- [`queryClient.refetchQueries`](#queryclientrefetchqueries)
+- [`queryClient.cancelQueries`](#queryclientcancelqueries)
+- [`queryClient.removeQueries`](#queryclientremovequeries)
+- [`queryClient.resetQueries`](#queryclientresetqueries)
+- [`queryClient.isFetching`](#queryclientisfetching)
+- [`queryClient.isMutating`](#queryclientismutating)
+- [`queryClient.getDefaultOptions`](#queryclientgetdefaultoptions)
+- [`queryClient.setDefaultOptions`](#queryclientsetdefaultoptions)
+- [`queryClient.getQueryCache`](#queryclientgetquerycache)
+- [`queryClient.getMutationCache`](#queryclientgetmutationcache)
+- [`queryClient.clear`](#queryclientclear)
+- [`queryClient.watchQuery`](#watchquery)
+
+**选项**
+
+- `queryCache?: QueryCache`
+  - 这个客户端连接的 `query` 缓存。
+- `mutationCache?: MutationCache`
+  - 这个客户端连接的 `mutation` 缓存。
+- `defaultOptions?: DefaultOptions`
+  - Optional
+  - 使用此 `queryClient` 定义所有 `query` 和 `mutation` 的默认值。
+
+## `queryClient.fetchQuery`
+
+`fetchQuery` 是一个异步方法，可用于获取和缓存查询。它要么返回数据，要么抛出错误。如果只想获取查询而不需要结果，可以使用 `prefetchQuery` 方法。
+
+如果查询存在并且数据未被失效或早于给定的 `staleTime` ，则将返回缓存中的数据。否则，它将尝试获取最新的数据。
+
+> 使用 `fetchQuery` 和 setQueryData` 之间的区别在于，`fetchQuery`是异步的，并确保不会在数据正在获取时为相同查询的`useQuery` 实例创建重复的请求。
+
+```tsx
+try {
+  const data = await queryClient.fetchQuery({ query, variables });
+} catch (error) {
+  console.log(error);
+}
+```
+
+指定 `staleTime` 以仅在数据旧于一定时间时获取：
+
+```tsx
+try {
+  const data = await queryClient.fetchQuery({
+    queryKey,
+    queryFn,
+    staleTime: 10000,
+  });
+} catch (error) {
+  console.log(error);
+}
+```
+
+**选项**
+
+`fetchQuery` 的选项与 `useQuery` 的选项完全相同，除了以下内容：`enabled`, `refetchInterval`, `refetchIntervalInBackground`, `refetchOnWindowFocus`, `refetchOnReconnect`, `refetchOnMount`, `notifyOnChangeProps`, `throwOnError`, `select`, `suspense`, `placeholderData`；这些选项仅用于 `useQuery` 和 `useInfiniteQuery`。您可以查看源代码以获取更多明确信息。
+
+**返回**
+
+- `Promise<TData>`
+
+## `queryClient.prefetchQuery`
+
+`prefetchQuery` is an asynchronous method that can be used to prefetch a query before it is needed or rendered with `useQuery` and friends. The method works the same as `fetchQuery` except that it will not throw or return any data.
+
+```tsx
+await queryClient.prefetchQuery({ queryKey, queryFn });
+```
+
+You can even use it with a default queryFn in your config!
+
+```tsx
+await queryClient.prefetchQuery({ queryKey });
+```
+
+**Options**
+
+`prefetchQuery` 的选项与 [`fetchQuery`](#queryclientfetchquery). 的选项完全相同。
+
+**返回**
+
+- `Promise<void>`
+  - 返回一个 Promise，如果不需要获取，则会立即解析，或者在查询执行后解析。它不会返回任何数据或抛出任何错误。
+
+## `queryClient.getQueryData`
+
+`getQueryData` 是一个同步函数，可用于获取现有查询的缓存数据。如果查询不存在，则将返回 `undefined。`
+
+```tsx
+const data = queryClient.getQueryData({ query, variables });
+```
+
+**返回**
+
+- `data: TQueryData | undefined`
+  - 缓存查询的数据，如果查询不存在，则返回 `undefined。`
+
+## `queryClient.ensureQueryData`
+
+`ensureQueryData` 是一个异步函数，可用于获取现有查询的缓存数据。如果查询不存在，则将调用 `queryClient.fetchQuery` 并返回其结果。
+
+```tsx
+const data = await queryClient.ensureQueryData({ queryKey, queryFn });
+```
+
+**选项**
+
+- `ensureQueryData` 的选项与 [`fetchQuery`](#queryclientfetchquery) 的选项完全相同。
+
+**返回**
+
+- `Promise<TQueryData>`
+
+## `queryClient.getQueriesData`
+
+`getQueriesData` 是一个同步函数，可用于获取多个查询的缓存数据。只返回与传递的 queryFilter 匹配的查询。如果没有匹配的查询，则返回空数组。
+
+```tsx
+const data = queryClient.getQueriesData(filters);
+```
+
+**选项**
+
+- `filters: QueryFilters`: [Query Filters](../guides/filters#query-filters)
+  - 如果传递了过滤器，将返回与过滤器匹配的查询键的数据
+
+**返回**
+
+- `[queryInfo: QueryInfo, data: TQueryData | undefined][]`
+  - 匹配查询键的元组数组，如果没有匹配项，则返回[]。元组包括查询键和其关联的数据。
+
+## `queryClient.setQueryData`
+
+`setQueryData` 是一个同步函数，可用于立即更新查询的缓存数据。如果查询不存在，将创建查询。如果查询未在默认的 `gcTime`（5 分钟）内由查询挂钩使用，查询将被垃圾回收。要同时更新多个查询并部分匹配查询键，需要使用 [`queryClient.setQueriesData`](#queryclientsetqueriesdata)。
+
+> 使用 `setQueryData` 和 `fetchQuery` 之间的区别在于，`setQueryData` 是同步的，假定您已经同步可用数据。如果需要异步获取数据，建议重新获取查询键或使用 `fetchQuery` 来处理异步获取。
+
+```tsx
+queryClient.setQueryData({ query, variables }, updater);
+```
+
+**选项**
+
+- `queryKey: QueryKey`: [Query Keys](../guides/query-keys)
+- `updater: TQueryData | undefined | ((oldData: TQueryData | undefined) => TQueryData | undefined)`
+  - 如果传递非函数，则将数据更新为此值
+  - 如果传递函数，它将接收旧数据值，并期望返回新数据。
+
+**使用值更新**
+
+```tsx
+setQueryData(queryKey, newData);
+```
+
+如果值为 `undefined` ，则不会更新查询数据。
+
+**使用函数更新**
+
+为了语法方便，您还可以传递一个接收当前数据值并返回新数据的更新器函数：
+
+```tsx
+setQueryData(queryKey, (oldData) => newData);
+```
+
+如果更新器函数返回 `undefined` ，则不会更新查询数据。如果更新器函数接收到 `undefined` 作为输入，则可以返回 `undefined` 以退出更新，从而不创建新的缓存条目。
+
+**不可变性**
+
+通过 `setQueryData` 进行的更新必须以*不可变的*方式执行。不要尝试通过改变 `oldData` 或在直接改变 `getQueryData` 检索的数据来直接写入缓存。
+
+## `queryClient.getQueryState`
+
+`getQueryState` 是一个同步函数，可用于获取现有查询的状态。如果查询不存在，则将返回 `undefined。`
+
+```tsx
+const state = queryClient.getQueryState({ query, variables });
+console.log(state.dataUpdatedAt);
+```
+
+## `queryClient.setQueriesData`
+
+`setQueriesData` 是一个同步函数，可用于根据过滤器函数或部分匹配查询键立即更新多个查询的缓存数据。只会更新与传递的 `queryFilter` 匹配的查询 - 不会创建新的缓存条目。在底层，为每个现有查询调用了 [`setQueryData`](#queryclientsetquerydata)。
+
+```tsx
+queryClient.setQueriesData(filters, updater);
+```
+
+**选项**
+
+- `filters: QueryFilters`: [Query Filters](../guides/filters#query-filters)
+  - 如果传递了过滤器，将更新与过滤器匹配的查询键
+- `updater: TQueryFnData | (oldData: TQueryFnData | undefined) => TQueryFnData`
+  - [setQueryData](#queryclientsetquerydata) 更新器函数或新数据，将为每个匹配的查询键调用
+
+## `queryClient.invalidateQueries`
+
+`invalidateQueries` 方法可用于根据查询键或查询的其他可访问属性/状态使单个或多个查询在缓存中失效并重新获取。默认情况下，所有匹配的查询都会立即标记为无效，并且正在活动渲染的查询将在后台重新获取。
+
+- 如果不希望活动查询重新获取，只需使用 `refetchType: 'none'` 选项。
+- 如果希望非活动查询也重新获取，请使用 `refetchType: 'all'` 选项
+
+```tsx
+await queryClient.invalidateQueries(
+  {
+    query,
+    variables,
+    exact,
+    refetchType: "active",
+  },
+  { throwOnError, cancelRefetch }
+);
+```
+
+**选项**
+
+- `filters?: QueryFilters`: [查询过滤器](../guides/filters#query-filters)
+  - `refetchType?: 'active' | 'inactive' | 'all' | 'none'`
+    - 默认为 `'active'`
+    - 当设置为 `active` 时，只有匹配重新获取条件并且通过 `useQuery` 和相关功能正在活动渲染的查询才会在后台重新获取。
+    - 当设置为 `inactive` 时，只有匹配重新获取条件并且未通过 `useQuery` 和相关功能活动渲染的查询才会在后台重新获取。
+    - 当设置为 `all` 时，将重新获取所有匹配重新获取条件的查询。
+    - 当设置为 `none` 时，不会重新获取任何查询，并且与重新获取条件匹配的查询仅标记为无效。
+- `options?: InvalidateOptions`:
+  - `throwOnError?: boolean`
+    - 当设置为 `true` 时，如果任何查询重新获取任务失败，此方法将引发错误。
+  - `cancelRefetch?: boolean`
+    - 默认为 `true`
+      - 默认情况下，在创建新请求之前将取消当前正在运行的请求
+    - 当设置为 `false` 时，如果已经有请求正在运行，将不会进行重新获取。
+
+## `queryClient.refetchQueries`
+
+`refetchQueries` 方法可用于根据某些条件重新获取查询。
+
+示例:
+
+```tsx
+// 重新获取所有查询：
+await queryClient.refetchQueries();
+
+// 重新获取所有陈旧的查询：
+await queryClient.refetchQueries({ stale: true });
+
+// 重新获取所有部分匹配 query 的活动查询：
+await queryClient.refetchQueries({ query: postsQuery, type: "active" });
+
+// 重新获取完全匹配 query 和 variables 的活动查询：
+await queryClient.refetchQueries({
+  query: postsQuery,
+  variables: 1,
+  type: "active",
+  exact: true,
+});
+```
+
+**选项**
+
+- `filters?: QueryFilters`：查询过滤器
+- `options?: RefetchOptions`：
+  - `throwOnError?: boolean`
+    当设置为 true 时，如果任何查询重新获取任务失败，此方法将引发错误。
+  - `cancelRefetch?: boolean`
+    默认为 `true`
+    默认情况下，在创建新请求之前将取消当前正在运行的请求
+    当设置为 `false` 时，如果已经有请求正在运行，将不会进行重新获取。
+
+**返回**
+
+此函数返回一个 `promise`，该 `promise` 将在所有查询完成重新获取时解析。默认情况下，如果其中任何查询重新获取失败，它不会引发错误，但可以通过将 `throwOnError` 选项设置为 `true` 来配置。
+
+## `queryClient.cancelQueries`
+
+`cancelQueries` 方法可用于根据查询键或查询的其他可访问属性/状态取消正在进行的查询。
+
+这在执行乐观更新时最有用，因为您可能需要取消任何正在进行的查询重新获取，以防它们在解析时覆盖您的乐观更新。
+
+```tsx
+await queryClient.cancelQueries({ query, variables, exact: true });
+```
+
+**选项**
+
+- `filters?: QueryFilters`: [查询过滤器](../guides/filters#query-filters)
+
+**返回**
+
+此方法不返回任何内容
+
+## `queryClient.removeQueries`
+
+`removeQueries` 方法可用于根据查询键或查询的其他可访问属性/状态从缓存中删除查询。
+
+```tsx
+queryClient.removeQueries({ queryKey, exact: true });
+```
+
+**选项**
+
+- `filters?: 查询过滤器`: [Query Filters](../guides/filters#query-filters)
+
+**返回**
+
+此方法不返回任何内容
+
+## `queryClient.resetQueries`
+
+`resetQueries` 方法可用于根据查询键或查询的其他可访问属性/状态将查询重置为其初始状态。
+
+这将通知订阅者，与 `clear` 不同，后者会删除所有订阅者，并将查询重置为其预加载状态，与 `invalidateQueries` 不同。如果查询具有 `initialData`，则将查询的数据重置为该数据。如果查询处于活动状态，它将重新获取。
+
+```tsx
+queryClient.resetQueries({ query, variables, exact: true });
+```
+
+**选项**
+
+- `filters?: QueryFilters`: [查询过滤器](../guides/filters#query-filters)
+- `options?: ResetOptions`:
+  - `throwOnError?: boolean`
+    - 当设置为 `true` 时，如果任何查询重新获取任务失败，此方法将引发错误。
+  - `cancelRefetch?: boolean`
+    - 默认为 `true`
+      - 默认情况下，在创建新请求之前将取消当前正在运行的请求
+    - 当设置为 `false` 时，如果已经有请求正在运行，将不会进行重新获取。
+
+**返回**
+
+此方法返回一个 promise，该 promise 在所有活动查询都已重新获取时解析。
+
+## `queryClient.isFetching`
+
+`isFetching` 方法返回一个表示缓存中当前正在获取（包括后台获取、加载新页面或加载更多无限查询结果）的查询数量的整数。
+
+```tsx
+if (queryClient.isFetching()) {
+  console.log("至少有一个查询正在获取！");
+}
+```
+
+Quaere 还导出了一个方便的 [`useIsFetching`](../reference/useIsFetching) 钩子，它可以让您在组件中订阅此状态，而无需手动订阅查询缓存。
+
+**选项**
+
+- `filters?: QueryFilters`: [Query Filters](../guides/filters#query-filters)
+
+**返回**
+
+此方法返回获取查询的数量。
+
+## `queryClient.isMutating`
+
+`isMutating` 方法返回一个表示缓存中当前正在获取的突变数量的整数。
+
+```tsx
+if (queryClient.isMutating()) {
+  console.log("至少有一个 mutation 正在请求！");
+}
+```
+
+Quaere 还导出了一个方便的 [`useIsMutating`](../reference/useIsMutating) 钩子，它可以让您在组件中订阅
+
+**选项**
+
+- `filters: 突变过滤器`: [Mutation Filters](../guides/filters#mutation-filters)
+
+**Returns**
+
+此方法返回正在获取的突变的数量。
+
+## `queryClient.getDefaultOptions`
+
+`getDefaultOptions` 方法返回当前默认选项的副本，这些选项将用于 `useQuery` 和 `useMutation` 等钩子的每个新查询和突变。
+
+```tsx
+const defaultOptions = queryClient.getDefaultOptions();
+```
+
+## `queryClient.setDefaultOptions`
+
+`setDefaultOptions` 方法可用于更新默认选项，以影响将来使用 `useQuery` 和 `useMutation` 等钩子创建的每个新查询和突变。
+
+```tsx
+queryClient.setDefaultOptions({
+  queries: {
+    staleTime: Infinity,
+  },
+});
+```
+
+## `queryClient.getQueryCache`
+
+`getQueryCache` 方法返回一个引用，该引用指向与 `queryClient` 关联的查询缓存。
+
+```tsx
+const queryCache = queryClient.getQueryCache();
+```
+
+## `queryClient.getMutationCache`
+
+`getMutationCache` 方法返回一个引用，该引用指向与 `queryClient` 关联的突变缓存。
+
+```tsx
+const mutationCache = queryClient.getMutationCache();
+```
+
+## `queryClient.clear`
+
+`clear` 方法可用于清除与 `queryClient` 关联的所有查询和变异缓存。
+
+```tsx
+queryClient.clear();
+```
+
+## `queryClient.watchQuery`
+
+这个方法监视查询的缓存存储，根据指定的选项返回一个 `ObservableQuery`。我们可以订阅这个 `ObservableQuery`，并在缓存存储发生变化时通过观察者接收更新的结果。
+
+```tsx
+const obsQuery = queryClient.watchQuery({ query, variables });
+
+const unsubscribe = obsQuery.subscribe((result) => {
+  console.log(result);
+  unsubscribe();
+});
+```
+
+**选项**
+
+- `watchQuery` 的选项与 `useQuery` 的选项完全相同。

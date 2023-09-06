@@ -1,0 +1,125 @@
+import { Callout } from "nextra-theme-docs";
+
+# Next.js SSG 和 SSR
+
+## App Router [#app-dir]
+
+### 服务器组件 [#rsc]
+
+<Callout type="default" emoji="✅">
+  在 Next.js App Router 中，默认情况下，所有组件都是 服务器组件
+  (RSC)。**你只能在 RSC 中导入 Quaere 的核心 API。**
+</Callout>
+
+```tsx filename="app/page.tsx" copy
+import { createQueryClient, query, dehydrate } from "quaere"; // ✅ 可在服务器组件中使用
+```
+
+<Callout type="error">
+  你不能导入 Quaere 的其他任何 React 相关的 API，因为它们在 RSC 中不可用。
+</Callout>
+
+```tsx filename="app/page.tsx" highlight={1}
+import { useQuery, useMutation } from "quaere"; // ❌ 这在服务器组件中不可用
+```
+
+### 客户端组件
+
+你可以使用 `'use client'` 指令或在客户端组件中导入 Quaere，两种方式都允许你使用 Quaere 客户端数据获取钩子。
+
+```tsx filename="app/page.tsx" highlight={1} copy
+'use client'
+import { useQuery } from 'quaere'
+export default Page() {
+  const { data } = useQuery('/api/user', fetcher)
+  return <h1>{data.name}</h1>
+}
+```
+
+如果你需要在服务器组件的 layout 或 page 中配置全局设置使用 QueryClientProvider，可以创建一个单独的提供者客户端组件来设置提供者和配置，然后在服务器组件页面中使用它。
+
+```tsx filename="app/provider.tsx" copy
+"use client";
+import { QueryClientProvider, createQueryClient } from "quaere";
+const queryClient = createQueryClient();
+export const Provider = ({ children }) => {
+  return (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+};
+```
+
+```tsx filename="app/page.tsx" copy
+// 这仍然是一个服务器组件
+import { Provider } from './provider'
+export default Page() {
+  return (
+    <Provider>
+      <h1>hello Quaere</h1>
+    </Provider>
+  )
+}
+```
+
+## 客户端数据获取 [#client-side-data-fetching]
+
+如果你的页面包含频繁更新的数据，而且不需要预渲染数据，那么 Quaere 非常适合，无需特殊设置：只需导入 useQuery，并在使用数据的任何组件中使用该钩子。
+
+工作原理如下：
+
+- 首先，立即显示不带数据的页面。你可以为缺少的数据显示加载状态。
+- 然后，在客户端上获取数据并在准备就绪时显示它。
+  这种方法非常适用于用户仪表板页面，例如。因为仪表板是一个私有的、用户特定的页面，SEO 不相关，页面不需要预渲染。数据经常更新，需要在请求时获取数据。
+
+## 使用默认数据进行预渲染 [#pre-rendering-with-default-data]
+
+如果页面必须预渲染，Next.js 支持 [两种形式的预渲染](https://nextjs.org/docs/basic-features/data-fetching)：**静态生成 (SSG)** 和 **服务器端渲染 (SSR)**。
+
+与 `Quaere` 一起，你可以为 SEO 预渲染页面，并在客户端上具有缓存、重新验证、焦点跟踪、定期重新获取等功能。
+
+你可以使用 `HydrationBoundary` 的 `state` 选项将预取的数据传递为所有 `Quaere` hook 的初始值。
+
+例如，使用 `getStaticProps：`
+
+```jsx
+const articleQuery = query({
+  id: "article",
+  fetcher: getArticleFromAPI,
+});
+
+export async function getStaticProps() {
+  // `getStaticProps` is executed on the server side.
+  const queryClient = createQueryClient();
+
+  await queryClient.prefetchQuery({ query: articleQuery });
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
+  };
+}
+
+function Article() {
+  // `data` will always be available as it's in `fallback`.
+  const { data } = useQuery({ query: articleQuery });
+  return <h1>{data.title}</h1>;
+}
+
+export default function Page({ dehydratedState }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <HydrationBoundary state={dehydratedState}>
+        <Article />
+      </HydrationBoundary>
+    </QueryClientProvider>
+  );
+}
+```
+
+页面仍然是预渲染的。它对 SEO 友好，响应速度快，但也完全由客户端端的 Quaere 提供支持。数据可以是动态的，并随时间自动更新。
+
+<Callout emoji="💡">
+  `Article`
+  组件首先将渲染预生成的数据，在页面被水合后，它将再次获取最新数据以保持刷新。
+</Callout>

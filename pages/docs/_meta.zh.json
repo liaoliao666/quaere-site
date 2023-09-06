@@ -1,6 +1,7 @@
 {
   "getting-started": "入门",
   "api": "API",
+  "fetcher": "fetcher",
   "global-configuration": "全局配置",
   "data-fetching": "数据请求",
   "error-handling": "错误处理",
@@ -8,7 +9,14 @@
   "conditional-fetching": "条件数据请求",
   "mutation": "远程数据更改",
   "infinite": "无限加载",
-  "prefetching": "预请求数据",
+  "prefetching": "预请求",
+  "with-nextjs": "Next.js SSG 和 SSR",
+  "typescript": "Typescript",
+  "suspense": "Suspense",
+  "cache": "缓存",
+  "performance": "性能",
+  "react-native": "React Native",
+  "reference": "参考",
   "about": {
     "title": "About",
     "type": "page"

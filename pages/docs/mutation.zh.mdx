@@ -132,8 +132,9 @@ const userQuery = query({
 });
 
 function Profile() {
+  const queryClient = useQueryClient();
   const { trigger, isMutating } = useMutation({ mutation: updateUserMutation });
-  const { data, setData, refetch } = useQuery({ query: userQuery });
+  const { data, refetch } = useQuery({ query: userQuery });
 
   return (
     <div>
@@ -142,16 +143,17 @@ function Profile() {
         disabled={isMutating}
         onClick={async () => {
           try {
+            const previousData = data;
             const newName = data.name.toUpperCase();
-            const user = { ...data, name: newName };
+            const user = { ...previousData, name: newName };
 
             // 立即更新本地数据
-            setData(user);
+            queryClient.setQueryData({ query: userQuery }, user);
             // 发送一个请求以更新数据
             await trigger(user);
           } catch (error) {
             // 请求错误，执行回滚
-            setData(data);
+            queryClient.setQueryData({ query: userQuery }, previousData);
           } finally {
             // 错误或成功后重新获取数据
             refetch();

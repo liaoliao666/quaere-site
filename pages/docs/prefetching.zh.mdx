@@ -38,9 +38,7 @@ export default function App() {
 }
 ```
 
-Within React rendering tree, `prefetch` is also available to use in event handlers or effects.
-
-在 React 渲染树内部，`prefetch` 也可以在事件处理程序或副作用中使用。
+在 React 渲染树内部，`prefetch` 也可以在事件处理或副作用中使用。
 
 ```jsx
 function App({ userId }) {
@@ -105,4 +103,4 @@ useQuery({
 });
 ```
 
-当 Quaere 还没有获取此次数据的时候， 这个 hook 将返回 `initialData` 作为 fallback 。
+当 Quaere 还没有获取此次数据的时候， 这个 hook 将返回 `initialData` 作为初始数据 。

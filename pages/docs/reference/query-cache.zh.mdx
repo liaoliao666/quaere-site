@@ -1,0 +1,119 @@
+# QueryCache
+
+`QueryCache` 是 Quaere 的存储机制。它存储了它包含的所有查询的数据、元信息和状态。
+
+**通常情况下，您不会直接与 `QueryCache` 互动，而是使用 `QueryClient` 来操作特定的缓存。**
+
+```tsx
+import { QueryCache } from "quaere";
+
+const queryCache = new QueryCache({
+  onError: (error) => {
+    console.log(error);
+  },
+  onSuccess: (data) => {
+    console.log(data);
+  },
+  onSettled: (data, error) => {
+    console.log(data, error);
+  },
+});
+
+const queryInfo = queryCache.find({ query: postsQuery, variables });
+```
+
+它的可用方法包括:
+
+- [`find`](#querycachefind)
+- [`findAll`](#querycachefindall)
+- [`subscribe`](#querycachesubscribe)
+- [`clear`](#querycacheclear)
+
+**选项**
+
+- `onError?: (error: unknown, query: Query) => void`
+  - 如果某个查询遇到错误，将调用此函数。
+- `onSuccess?: (data: unknown, query: Query) => void`
+  - 如果某个查询成功，将调用此函数。
+- `onSettled?:` (data: unknown | undefined, error: unknown | null, query: Query) => void
+  - 如果某个查询已完成（成功或出错），将调用此函数。
+
+## 全局回调
+
+`QueryCache` 上的 ` onError``、onSuccess ` 和 `onSettled` 回调可用于全局处理这些事件。它们与提供给 `QueryClient` 的 `defaultOptions` 不同，因为：
+
+- `defaultOptions` 以被每个查询覆盖 - 全局回调将 **始终** 被调用。
+- `defaultOptions` 回调将为每个 Observer 调用一次，而全局回调每个查询只会被调用一次。
+
+## `queryCache.find`
+
+`find` 是一个稍微高级的同步方法，可用于从缓存中获取现有查询实例。此实例不仅包含查询的所有状态，还包括所有实例和查询的底层内部信息。如果查询不存在，将返回 `undefined`。
+
+> 注意：大多数应用程序通常不需要这样做，但在稀有情况下需要更多关于查询的信息时可能会有用（例如，查看 query.state.dataUpdatedAt 时间戳，以确定查询是否足够新以用作初始值）
+
+```tsx
+const queryInfo = queryCache.find({ query: postsQuery, variables });
+```
+
+**选项**
+
+- `filters?: QueryFilters`: [查询过滤器](../guides/filters#query-filters)
+
+**返回**
+
+- `Query`
+  - 来自缓存的查询实例
+
+## `queryCache.findAll`
+
+`findAll` 是更高级的同步方法，可用于从缓存中获取部分匹配查询键的现有查询实例。如果查询不存在，将返回空数组。
+
+> 注意：大多数应用程序通常不需要这样做，但在稀有情况下需要更多关于查询的信息时可能会有用
+
+```tsx
+const queries = queryCache.findAll({ query: postsQuery });
+```
+
+**选项**
+
+- `filters?: QueryFilters`: [查询过滤器](../guides/filters#query-filters)
+
+**返回**
+
+- `QueryInfo[]`
+  - 来自缓存的查询实例数组
+
+## `queryCache.subscribe`
+
+`subscribe` 方法可用于订阅整个查询缓存，并在缓存的安全/已知更新（例如查询状态更改或查询更新、添加或删除）时获得通知。
+
+```tsx
+const callback = (event) => {
+  console.log(event.type, event.query);
+};
+
+// 订阅所有查询事件
+const unsubscribe = queryCache.subscribe(callback);
+
+// 订阅特定的查询事件
+const unsubscribe = queryCache.subscribe({ query, variables }, callback);
+```
+
+**选项**
+
+- `filters?: QueryFilters`: [查询过滤器](../guides/filters#query-filters)
+- `callback: (event: QueryCacheNotifyEvent) => void`
+  - 每当通过其跟踪的更新机制（例如，`queryInfo.setState`、`queryClient.removeQueries` 等）更新查询缓存时，将调用此函数。不鼓励对缓存进行超出范围的突变，不会触发订阅回调
+
+**返回**
+
+- `unsubscribe: Function => void`
+  - 此函数将取消订阅回调函数。
+
+## `queryCache.clear`
+
+`clear` 方法可用于完全清除缓存并重新开始
+
+```tsx
+queryCache.clear();
+```

@@ -1,0 +1,14 @@
+# useQueryClient
+
+`useQueryClient` 钩子返回当前的 `QueryClient` 实例。
+
+```tsx
+import { useQueryClient } from "quaere";
+
+const queryClient = useQueryClient(queryClient?: QueryClient)
+```
+
+**选项**
+
+- `queryClient?: QueryClient`
+  - 使用此选项来使用自定义的 QueryClient。否则，将使用最近上下文中的 QueryClient。

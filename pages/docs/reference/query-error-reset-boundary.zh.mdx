@@ -1,0 +1,28 @@
+# QueryErrorResetBoundary
+
+当在查询中使用 `suspense` 或 `throwOnError` 时，您需要一种方法来通知查询，以便在发生错误后重新渲染时尝试再次查询。使用 `QueryErrorResetBoundary` 组件，您可以在组件的范围内重置任何查询错误。
+
+```tsx
+import { QueryErrorResetBoundary } from "quaere";
+import { ErrorBoundary } from "react-error-boundary";
+
+const App: React.FC = () => (
+  <QueryErrorResetBoundary>
+    {({ reset }) => (
+      <ErrorBoundary
+        onReset={reset}
+        fallbackRender={({ resetErrorBoundary }) => (
+          <div>
+            出现了一个错误！
+            <Button onClick={() => resetErrorBoundary()}>重试</Button>
+          </div>
+        )}
+      >
+        <Page />
+      </ErrorBoundary>
+    )}
+  </QueryErrorResetBoundary>
+);
+```
+
+在上述示例中，`QueryErrorResetBoundary` 组件用于捕获查询错误，并通过 `reset` 回调函数提供了重置错误的能力。当错误发生时，`ErrorBoundary` 会呈现一个回退界面，允许用户点击按钮重试查询。

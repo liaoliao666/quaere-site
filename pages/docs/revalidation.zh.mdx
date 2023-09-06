@@ -35,29 +35,6 @@ useQuery({ query: anQuery, refreshInterval: 1000 });
 
 该特性默认是启用的。你可以通过 [`refetchOnReconnect`](/docs/api) 选项禁用它。
 
-## 禁用自动重新请求 [#disable-automatic-revalidations]
-
-如果资源是**不可变的**，即使我们再怎么重新请求也永远不会发生任何改变，那么我们可以禁用它的所有的自动重新请求。
-
-```js
-queryWithImmutable({
-  fetcher,
-});
-
-// 相当于
-query({
-  fetcher,
-  refetchInterval: false,
-  refetchOnMount: false,
-  refetchOnReconnect: false,
-  refetchOnWindowFocus: false,
-  gcTime: Infinity,
-  staleTime: Infinity,
-});
-```
-
-上面这两个函数 做**完全相同的**事情。一旦数据被缓存，他们将永远不会再次请求它。
-
 ## 挂载时重新请求 [#refetch-on-mount]
 
 refetchOnMount 参数是一个非常实用的功能，它可以在组件挂载时自动重新请求数据。

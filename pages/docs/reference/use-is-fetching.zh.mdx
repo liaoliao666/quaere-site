@@ -1,0 +1,22 @@
+# useIsFetching
+
+`useIsFetching` 是一个可选的钩子，用于返回应用程序后台加载或获取的查询数量（对于应用程序范围的加载指示器非常有用）。
+
+```tsx
+import { useIsFetching } from "quaere";
+// 获取正在进行的查询数量
+const isFetching = useIsFetching();
+// 获取 postsQuery 的查询数量
+const isFetchingPosts = useIsFetching({ query: postsQuery });
+```
+
+**选项**
+
+- `filters?: QueryInfoFilters`: [查询过滤器](../guides/filters#query-filters)
+- `queryClient?: QueryClient`,
+  - 使用此选项提供自定义的 QueryClient。否则，将使用最近上下文中的 QueryClient.
+
+**返回**
+
+- `isFetching: number`
+  - 表示应用程序后台当前正在加载或获取的查询数量。

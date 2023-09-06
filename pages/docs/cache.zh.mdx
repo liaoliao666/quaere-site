@@ -1,0 +1,69 @@
+import { Callout } from "nextra-theme-docs";
+
+# 缓存
+
+## 同步缓存 [#sync-storage]
+
+```jsx
+import { dehydrate, hydrate, createQueryClient } from "quaere";
+
+export const queryClient = createQueryClient();
+
+// 初始化时，我们将数据从 `localStorage` 恢复到一个 queryClient 中。
+hydrate(queryClient, JSON.parse(localStorage.getItem("app-cache") || "{}"));
+
+// 在卸载 app 之前，我们将所有数据写回 `localStorage` 中。
+window.addEventListener("beforeunload", () => {
+  // 注意：必须手动设置 query 的 id 选项，dehydrate 才不会过滤掉该query
+  const appCache = dehydrate(queryClient);
+  localStorage.setItem("app-cache", appCache);
+});
+```
+
+## 异步缓存 [#async-storage]
+
+你也可以通过 `HydrationBoundary` 组件来实现这个行为：
+
+```typescript
+import { use, useEffect } from "react";
+import {
+  HydrationBoundary,
+  QueryClientProvider,
+  queryClient,
+  QueryClientProvider,
+} from "quaere";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const appCachePromise = AsyncStorage.getItem("app-cache");
+
+function AsyncStoragePersistProvider({ children }) {
+  const appCache = use(appCachePromise);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      AsyncStorage.setItem("app-cache", dehydrate(queryClient));
+    }, 1000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [queryClient]);
+
+  return <HydrationBoundary state={appCache}>{children}</HydrationBoundary>;
+}
+
+export const queryClient = createQueryClient();
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Suspense>
+        <AsyncStoragePersistProvider>
+          <Page />
+        </AsyncStoragePersistProvider>
+      </Suspense>
+    </QueryClientProvider>
+  );
+}
+```

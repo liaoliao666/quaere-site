@@ -1,0 +1,54 @@
+# TypeScript
+
+Quaere 对于使用 TypeScript 编写的 app 是友好的，开箱即用，类型安全。
+
+## 基本用法 [#basic-usage]
+
+默认情况下，Quaere 会从 `fetcher` 推断出 类型，因此你可以自动获得首选类型。
+
+### useSWR [#useswr]
+
+```typescript
+// variables 将被推断为 { id: number }, data 将被推断为 { title: string }
+const todoQuery = query({
+  id: "todo",
+  fetcher: (variables: { id: number }) => {
+    return { title: "todo" };
+  },
+});
+
+const { data } = useQuery({ query: todoQuery, variables: { id: 1 } });
+```
+
+你还可以显式地指定 `variables`、 `data` 参数的类型。
+
+```typescript
+type Data = { title: string };
+type Variables = { id: number };
+
+const todoQuery = query<Data, Variables>({
+  id: "todo",
+  fetcher: (variables) => {
+    return { title: "todo" };
+  },
+});
+```
+
+默认情况下，在 `fetcher` 函数内部[抛出的错误](/docs/error-handling)默认为 `Error` 类型。该类型也可以明确指定。
+
+```typescript
+type Data = { title: string };
+type Variables = { id: number };
+type BizError = Error;
+
+const todoQuery = query<Data, Variables, BizError>({
+  id: "todo",
+  fetcher: (variables) => {
+    return { title: "todo" };
+  },
+});
+
+const { data, error } = useQuery({ query: todoQuery, variables: { id: 1 } });
+// `data` 将会是 `Data | undefined`.
+// `error` 将会是 `BizError | null`.
+```

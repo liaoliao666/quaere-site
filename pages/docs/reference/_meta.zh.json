@@ -1,0 +1,17 @@
+{
+  "hydration": "hydration",
+  "use-queries": "useQueries",
+  "use-is-fetching": "useIsFetching",
+  "use-is-mutating": "useIsMutating",
+  "use-mutation-state": "useMutationState",
+  "create-query-client": "createQueryClient",
+  "query-client-provider": "QueryClientProvider",
+  "use-query-client": "useQueryClient",
+  "query-cache": "QueryCache",
+  "mutation-cache": "MutationCache",
+  "query-error-reset-boundary": "QueryErrorResetBoundary",
+  "use-query-error-reset-boundary": "useQueryErrorResetBoundary",
+  "focus-manager": "FocusManager",
+  "online-manager": "OnlineManager"
+}
+

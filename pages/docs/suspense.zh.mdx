@@ -1,0 +1,48 @@
+import { Callout } from "nextra-theme-docs";
+
+# Suspense
+
+你可以使用 `useSuspenseQuery` hook，从而让 Quaere 和 React Suspense 一起使用：
+
+```jsx
+import { Suspense } from "react";
+import { useSuspenseQuery } from "quaere";
+
+function Profile() {
+  const { data } = useSuspenseQuery({ query: userQuery });
+  return <div>hello, {data.name}</div>;
+}
+
+function App() {
+  return (
+    <Suspense fallback={<div>loading...</div>}>
+      <Profile />
+    </Suspense>
+  );
+}
+```
+
+在 Suspense 模式下，`data` 总是请求响应（因此你无需检查它是否是 `undefined`）。但如果发生错误，则需要使用 [错误边界](https://reactjs.org/docs/concurrent-mode-suspense.html#handling-errors) 来捕获它：
+
+```jsx
+<ErrorBoundary fallback={<h2>Could not fetch posts.</h2>}>
+  <Suspense fallback={<h1>Loading posts...</h1>}>
+    <Profile />
+  </Suspense>
+</ErrorBoundary>
+```
+
+<Callout>
+  `useSuspenseQuery`
+  模式会在数据准备就绪前暂停渲染，这意味着它很容易导致请求瀑布问题。为了避免这种情况，应该使用
+  `useSuspenseQueries` 来并行请求多个资源。[更多信息](/docs/use-queries)
+</Callout>
+
+```jsx
+function Profile() {
+  const [userResult, postsResult] = useSuspenseQueries({
+    queries: [{ query: userQuery }, { query: postsQuery }],
+  });
+  return <div>hello, {userResult.data.name}</div>;
+}
+```

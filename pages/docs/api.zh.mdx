@@ -2,8 +2,8 @@
 
 ```ts
 const anQuery = query({
-  // 如果设置了 key，dehrydrate 函数将会保留该 query。
-  key: string,
+  // 如果设置了 id，dehrydrate 函数将会保留该 query。
+  id: string,
   // 必选，用于请求数据的函数。
   fetcher: (variables: TVars, context: QueryFunctionContext) => Promise<TData>,
   // 选项
@@ -24,86 +24,109 @@ const { data, error, isLoading, isFetching, refetch, setData } = useQuery({
 
 ## 返回值 [#return-values]
 
-- `data`：由 `fetcher` 解析的给定 `variables` 的数据（如果未加载，则 `undefined`）
-- `error`： `fetcher` 引发的错误（或 `undefined`）
-- `isLoading`：如果有正在进行的请求，但没有 "加载的数据"。以前的数据不视为 "加载数据"。
-- `isFetching`：如果正在加载请求或重新验证数据
-- `setData(data?,options?)`：更改缓存数据的函数
+- `data`: 由 `fetcher` 解析的给定 `variables` 的数据（如果未加载，则 `undefined`）
+- `error`: `fetcher` 引发的错误（或 `undefined`）
 - `refetch()`: 重新查询
-- `reset()`: 重置
+- `isLoading`: 当查询的第一次获取请求正在进行中时，则为 `true`。
+- `isFetching`: 如果正在加载请求或重新请求数据
+- `isPlaceholderData`: 如果显示的数据是 `placeholderData` 选项返回的占位数据，则为 `true`。
 
 ## 选项 [#options]
 
-- `enabled: boolean | ((data: TData, variables: TVars) => boolean)`
-  - 将此设置为 false 以禁用此查询自动运行。
-  - 如果设置为函数，该函数将使用最新数据和变量执行以计算布尔值
-- `networkMode: 'online' | 'always' | 'offlineFirst`
+- `enabled: boolean | (data: TData, queryInfo: QueryInfo) => number`
+  - 默认为 `true`
+  - 如果设置为 `false`，则查询将不会在挂载时触发。
+  - 如果设置为函数，则将执行函数以计算值。
+- `networkMode: 'online' | 'always' | 'offlineFirst'`
   - 默认为 `'online'`
-  - see [Network Mode](../guides/network-mode) for more information.
+  - 有关更多信息，请参阅 [网络模式](../guides/network-mode)。
 - `retry: boolean | number | (failureCount: number, error: TError) => boolean`
-  - 如果 `false`，默认情况下不会重试失败的查询。
-  - 如果设置为 `true`，失败的查询将无限重试。
-  - 如果设置为`数字`，例如`3`，失败的查询将重试，直到失败的查询次数达到该数字。
+  - 如果为 `false`，默认情况下失败的查询不会重试。
+  - 如果为 `true`，失败的查询将无限重试。
+  - 如果设置为数字，例如 `3`，则失败的查询将重试，直到失败的查询计数达到该数字。
+  - 在客户端上默认为 `3`，在服务器上默认为 `0`。
 - `retryOnMount: boolean`
-  - 如果设置为 "false"，则在挂载时不会重试包含错误的查询。默认为 `true`。
+  - 如果设置为 `false`，如果查询包含错误，它将不会在挂载时重试。默认为 `true`。
 - `retryDelay: number | (retryAttempt: number, error: TError) => number`
-  - 该函数接收一个 `retryAttempt` 整数和 `error`，并返回下一次重试前的延迟时间（以毫秒为单位）。
+  - 此函数接收一个 `retryAttempt` 整数和实际的错误，并返回在下一次尝试之前应用的延迟（以毫秒为单位）。
+  - 类似于 `attempt => Math.min(attempt > 1 ? 2 ** attempt * 1000 : 1000, 30 * 1000)` 的函数应用指数回退。
+  - 类似于 `attempt => attempt * 1000` 的函数应用线性回退。
 - `staleTime: number | Infinity`
-  - 默认为 `0`.
-  - 数据被视为过期后的时间（毫秒）。此值只适用于它所定义的钩子。
-  - 如果设置为 `Infinity`，数据将永远不会被视为过期
+  - 默认为 `0`
+  - 数据被视为过期的毫秒数。此值仅适用于定义它的钩子。
+  - 如果设置为 `Infinity`，数据将永远不会被视为过期。
 - `gcTime: number | Infinity`
-  - 默认为 `5 * 60 * 1000`（5 分钟），在 SSR 期间时或未设置 `fetcher` 时为 `Infinity`
-  - 未使用/未激活的缓存数据在内存中保留的时间（以毫秒为单位）。当查询的缓存变得未使用或不活动时，缓存数据将在此时间后被垃圾回收。如果指定了不同的垃圾回收时间，将使用最长的时间。
+  - 默认为 `5 * 60 * 1000`（5 分钟）或在 SSR 期间为 `Infinity`
+  - 未使用/不活动的缓存数据在内存中保留的毫秒数。当查询的缓存变得未使用或不活动时，将在此持续时间后进行垃圾回收。当指定不同的垃圾回收时间时，将使用最长的时间。
   - 如果设置为 `Infinity`，将禁用垃圾回收。
-- `hashKeyFn: (queryKey: [Key, TVars]) => string`
-  - 如果指定，该函数用于将 `queryKey` 散列为字符串。
-- `refetchInterval: number | false | ((data: TData | undefined, obsQuery: ObservableQuery) => number | false | undefined)`
-  - 可选
-  - 如果设置为数字，查询都将以该频率（毫秒）为单位持续重新获取数据
-  - 如果设置为函数，该函数将使用最新数据和查询执行，以计算出频率
+- `queryKeyHashFn: (queryKey: QueryKey) => string`
+  - 如果指定，此函数用于将 `queryKey` 哈希为字符串。
+- `refetchInterval: number | false | ((data: TData | undefined, queryInfo: QueryInfo) => number | false | undefined)`
+  - 如果设置为数字，所有查询将以毫秒为单位以此频率连续重新获取。
+  - 如果设置为函数，则将使用最新数据和查询执行函数以计算频率。
 - `refetchIntervalInBackground: boolean`
-  - 如果设置为 `true`，使用 `refetchInterval` 设置为持续重新获取的查询将在其标签页/窗口处于后台时继续重新获取。
-- `refetchOnMount: boolean | "always" | ((obsQuery: ObservableQuery) => boolean | "always")`
+  - 如果设置为 `true`，则设置为连续重新获取的查询将在其选项卡/窗口在后台时继续重新获取。
+- `refetchOnMount: boolean | "always" | ((queryInfo: QueryInfo) => boolean | "always")`
   - 默认为 `true`
-  - 如果设置为 `true`，数据过期时将在挂载时重新获取。
-  - 如果设置为 `false`，查询不会在挂载时重新获取。
-  - 如果设置为 `always`，查询将始终在挂载时重新获取。
-  - 如果设置为函数，该函数将与查询一起执行，以计算值
-- `refetchOnWindowFocus: boolean | "always" | ((obsQuery: ObservableQuery) => boolean | "always")`
+  - 如果设置为 `true`，如果数据过期，查询将在挂载时重新获取。
+  - 如果设置为 `false`，查询将不会在挂载时重新获取。
+  - 如果设置为 `"always"`，查询将始终在挂载时重新获取。
+  - 如果设置为函数，则将执行函数以计算值。
+- `refetchOnWindowFocus: boolean | "always" | ((queryInfo: QueryInfo) => boolean | "always")`
   - 默认为 `true`
-  - 如果设置为 `true`，查询将在数据过期时根据窗口焦点重新获取。
-  - 如果设置为 `false`，查询将不会在窗口聚焦时重新获取。
-  - 如果设置为 `always`，查询将始终在窗口聚焦时重新获取。
-  - 如果设置为函数，该函数将与查询一起执行，以计算值
-- `refetchOnReconnect: boolean | "always" | ((obsQuery: ObservableQuery) => boolean | "always")`
-  - 可选
+  - 如果设置为 `true`，如果数据过期，查询将在窗口获得焦点时重新获取。
+  - 如果设置为 `false`，查询将不会在窗口获得焦点时重新获取。
+  - 如果设置为 `"always"`，查询将始终在窗口获得焦点时重新获取。
+  - 如果设置为函数，则将执行函数以计算值。
+- `refetchOnReconnect: boolean | "always" | ((queryInfo: QueryInfo) => boolean | "always")`
   - 默认为 `true`
   - 如果设置为 `true`，如果数据过期，查询将在重新连接时重新获取。
-  - 如果设置为 `false`，则重新连接时不会重新获取查询。
-  - 如果设置为 `always`，则查询将始终在重新连接时重新获取。
-  - 如果设置为函数，则该函数将与查询一起执行以计算值
+  - 如果设置为 `false`，查询将不会在重新连接时重新获取。
+  - 如果设置为 `"always"`，查询将始终在重新连接时重新获取。
+  - 如果设置为函数，则将执行函数以计算值。
+- `select: (data: TData) => unknown`
+  - 此选项可用于转换或选择查询函数返回的数据的一部分。它影响返回的 `data` 值，但不影响存储在查询缓存中的内容。
 - `suspense: boolean`
-  - 将其设置为 `true` 以启用 Suspense 模式。
-  - 当 `true` 时，`useQuery` 将在 `status === 'pending'` 时挂起
-  - 当 `true` 时，`useQuery` 将在 `status === 'error'` 时抛出运行时错误
+  - 设置为 `true` 以启用悬念模式。
+  - 当 `status === 'pending'` 时，`useQuery` 将暂停。
+  - 当 `status === 'error'` 时，`useQuery` 将在运行时抛出错误。
 - `initialData: TData | () => TData`
-  - 如果设置，该值将用作查询缓存的初始数据（只要查询尚未创建或缓存）
-  - 如果设置为函数，该函数将在共享/根查询初始化期间被调用**一次**，并预计同步返回 initialData
-  - 默认情况下，除非设置了 `staleTime`，否则初始数据被认为是过期的。
-  - `initialData` **被持久化**到缓存
+  - 如果设置，此值将用作查询缓存的初始数据（只要查询尚未创建或缓存）。
+  - 如果设置为函数，则将在共享/根查询初始化期间调用该函数，并且预期同步返回 initialData。
+  - 默认情况下，初始数据被视为过期，除非设置了 `staleTime`。
+  - `initialData` **会被持久化**到缓存中。
 - `initialDataUpdatedAt: number | (() => number | undefined)`
-  - 如果设置了该值，则该值将被用作 `initialData ` 本身最后一次更新的时间（以毫秒为单位）。
-- `keepPreviousData: boolean`
-  - 在加载新数据前保留以前的数据，默认为 false
+  - 如果设置，此值将用作 `initialData` 本身的最后更新时间（以毫秒为单位）。
+- `placeholderData: TData | (previousValue: TData | undefined; previousQueryInfo: QueryInfo | undefined,) => TData`
+  - 如果设置，此值将用作查询观察器的占位数据，而查询仍处于 `pending` 状态。
+  - `placeholderData` **不会被持久化**到缓存中。
+  - 如果为 `placeholderData` 提供了一个函数，您将首先收到先前观察的查询数据（如果可用），然后是完整的先前查询实例。
 - `structuralSharing: boolean | ((oldData: TData | undefined, newData: TData) => TData)`
   - 默认为 `true`
-  - 如果设置为 `false`，查询结果之间的结构共享将被禁用。
-  - 如果设置为函数，新旧数据值将通过该函数传递，该函数将把它们合并为查询的解析数据。这样，即使数据包含不可序列化的值，也可以保留旧数据的引用，从而提高性能。
-- `throwOnError: undefined | boolean | (error: TError, obsQuery: ObservableQuery) => boolean`
+  - 如果设置为 `false`，将禁用查询结果之间的结构共享。
+  - 如果设置为函数，将通过此函数传递旧数据和新数据值，该函数应该将它们合并为查询的解析数据。这样，即使数据包含不可序列化的值，也可以保留对旧数据的引用，以提高性能。
+- `throwOnError: undefined | boolean | (error: TError, queryInfo: QueryInfo) => boolean`
   - 默认为全局查询配置的 `throwOnError` 值，即 `undefined`
-  - 如果希望在 render 阶段抛出错误并传播到最近的 ErrorBoundary，则将其设置为 `true`
-  - 设为 `false` 可禁用 `suspense` 的默认行为，即向 ErrorBoundary 抛出错误。
-  - 如果将其设置为函数，则会传递错误和查询，并返回一个布尔值，表明是在 ErrorBoundary 中显示错误（`true`），还是将错误作为状态返回（`false`）。
+  - 如果要在渲染阶段抛出错误并传播到最近的错误边界，请将其设置为 `true`
+  - 如果要禁用 `suspense` 默认行为，即将错误抛出到错误边界，请将其设置为 `false`
+  - 如果设置为函数，则将传递错误和查询，并且应返回一个布尔值，指示是否在错误边界中显示错误（`true`）或将错误作为状态返回（`false`）。
 - `meta: Record<string, unknown>`
-  - 如果设置，则存储附加信息, 可以通过 `fetcher` 的第二个参数 `QueryFunctionContext` 的 `meta` 属性读取。
+  - 如果设置，将额外的信息存储在查询缓存条目上，可以根据需要使用。它将在查询可用的任何地方都可访问，并且也是提供给 `fetcher` 的 `QueryFunctionContext` 的一部分。
+- `queryClient?: QueryClient`
+  - 使用此选项来使用自定义的 QueryClient。否则，将使用最近上下文中的 QueryClient。
+
+## QueryFunctionContext
+
+`QueryFunctionContext` 是传递给每个 `fetcher` 的对象，包括以下内容
+
+- `signal?: AbortSignal`
+  - [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) Quaere 提供的 AbortSignal 实例
+  - 可用于取消查询
+- `meta: Record<string, unknown> | undefined`
+  - 可选字段，您可以填写有关查询的其他信息
+
+此外，当使用 [queryWithInfinite](docs/infinite) 还会传递以下选项：
+
+- `pageParam: TPageParam`
+  - 用于获取当前页的页面参数
+- `direction: 'forward' | 'backward'`

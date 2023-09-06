@@ -1,0 +1,38 @@
+# useQueries 钩子
+
+`useQueries` 钩子可用于执行多个查询：
+
+```tsx
+const postQuery = query({
+  fetcher: (id) => fetchPost(id),
+});
+
+const ids = [1, 2, 3];
+const results = useQueries({
+  queries: ids.map((id) => ({
+    query: postQuery,
+    variables: id,
+    staleTime: Infinity,
+  })),
+});
+```
+
+## 选项
+
+`useQueries` 钩子接受一个选项对象，其中包含一个名为 `queries` 的键，其值是一个数组，数组中包含与 `useQuery` 钩子相同的查询选项对象（不包括 `queryClient` 选项，因为可以在顶层传递 `QueryClient`）。
+
+- `queryClient?: QueryClient`：用于提供自定义的 QueryClient。否则，将使用最近上下文中的 QueryClient。
+- `combine?: (result: UseQueriesResults) => TCombinedResult`：用于将查询结果合并为单个值的函数。
+  如果在查询对象数组中多次使用相同的查询键，可能会导致某些数据在查询之间共享。为避免此问题，请考虑对查询进行去重，并将结果映射回所需的结构。
+
+- placeholderData
+
+`useQueries` 钩子也支持 `placeholderData` 选项，但它不像 `useQuery` 钩子那样从先前呈现的查询传递信息，因为 `useQueries` 的输入可能在每次呈现时包含不同数量的查询。
+
+## 返回值
+
+`useQueries` 钩子返回一个包含所有查询结果的数组。返回的顺序与输入顺序相同。
+
+## 合并查询结果
+
+如果要将查询结果中的 `data`（或其他查询信息）合并为单个值，可以使用 `combine` 选项。查询结果将在结构上共享，以尽可能保持引用稳定。

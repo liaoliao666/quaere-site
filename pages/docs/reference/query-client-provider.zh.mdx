@@ -1,0 +1,19 @@
+# QueryClientProvider
+
+使用 · 组件来连接并为你的应用程序提供 ·
+
+```tsx
+import { createQueryClient, QueryClientProvider } from "quaere";
+
+const queryClient = createQueryClient();
+
+function App() {
+  return <QueryClientProvider client={queryClient}>...</QueryClientProvider>;
+}
+```
+
+**选项**
+
+- `client: QueryClient`
+  - **Required**
+  - 要提供的 QueryClient 实例。

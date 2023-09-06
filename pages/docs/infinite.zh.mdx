@@ -23,7 +23,7 @@ const projectsQuery = queryWithInfinite({
       ...variables,
       page: pageParam,
     }),
-  defaultPageParam: 0,
+  initialPageParam: 0,
   getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
   getPreviousPageParam: (firstPage, pages) => firstPage.prevCursor,
   ...options,
@@ -84,7 +84,7 @@ const {
 
 `queryWithInfinite` 的选项与 `query` 钩子完全相同，只是新增了以下内容：
 
-- `defaultPageParam: number`
+- `initialPageParam: number`
 
   - **必需**
   - 获取第一页时使用的默认页参数。
@@ -104,7 +104,7 @@ const {
 ### 示例
 
 ```tsx
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery } from "quaere";
 
 const projectsQuery = queryWithInfinite({
   fetcher: (variables, { pageParam }) =>
@@ -112,7 +112,7 @@ const projectsQuery = queryWithInfinite({
       ...variables,
       cursor: pageParam,
     }),
-  defaultPageParam: 0,
+  initialPageParam: 0,
   getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
 });
 
