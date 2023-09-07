@@ -1,23 +1,93 @@
-# Nextra Docs Template 
+<div style="text-align: center; margin: 32px;">
+  <svg
+      className="invert-on-dark"
+      width="193.08641975308637"
+      viewBox="2 -35.849998474121094 215.0399932861328 44.54999923706055"
+      height="40"
+      data-palette-color="#0063db"
+    >
+      <path
+        d="M13.05 0L6 0 5-6.3Q3.6-8.05 2.8-10.8 2-13.55 2-17.65L2-17.65Q2-23.2 3.43-26.75 4.85-30.3 7.28-32.3 9.7-34.3 12.73-35.08 15.75-35.85 18.95-35.85L18.95-35.85Q22.15-35.85 25.18-35.05 28.2-34.25 30.63-32.25 33.05-30.25 34.48-26.7 35.9-23.15 35.9-17.65L35.9-17.65Q35.9-13.35 35-10.5 34.1-7.65 32.5-5.9L32.5-5.9Q31.7-4.95 30.7-4.3 29.7-3.65 28.55-3.2L28.55-3.2 28.6-2.95 32.5-1.95 39.35 1.1 34.85 8.7Q34.85 8.7 33.6 8.08 32.35 7.45 30.4 6.5 28.45 5.55 26.38 4.53 24.3 3.5 22.63 2.7 20.95 1.9 20.25 1.55L20.25 1.55Q18.5 0.7 17 0.35 15.5 0 13.05 0L13.05 0ZM14.95-7.95L14.95-7.95 18.9-7.95Q22.9-7.95 24.68-10.43 26.45-12.9 26.45-17.65L26.45-17.65Q26.45-22.95 24.55-25.15 22.65-27.35 18.95-27.35L18.95-27.35Q15.3-27.35 13.4-25.1 11.5-22.85 11.5-17.65L11.5-17.65Q11.5-15.3 12.03-13.3 12.55-11.3 13.35-9.9 14.15-8.5 14.95-7.95ZM55.95 0.5L55.95 0.5Q48.25 0.5 44.37-3.03 40.5-6.55 40.5-14.35L40.5-14.35 40.5-27.35 40.55-32.4 40.5-35.4 49.6-35.4 49.6-15.35Q49.6-11.85 51-9.68 52.4-7.5 55.95-7.5L55.95-7.5Q59.5-7.5 60.97-9.53 62.45-11.55 62.45-15.35L62.45-15.35 62.45-35.4 71.4-35.4 71.4-14.35Q71.4-6.7 67.62-3.1 63.85 0.5 55.95 0.5ZM84.3 0L74.9 0 77.3-8.45 77.3-14.8 81-16.3 87.5-35.35 100.45-35.35 108.5-12.95 112.35-5.85 112.35 0 103.5 0 101-8 86.45-8 84.3 0ZM93.4-27.15L89.75-15.7 98.25-15.7 94.45-27.15 93.4-27.15ZM143.79 0L116.84 0 115.84-3 116.84-8 116.84-35.4 141.59-35.4 144.09-33.9 140.79-26.9 136.29-27.4 125.84-27.4 125.84-21.9 139.29-21.9 139.29-14.15 133.39-14.15 125.84-14.65 125.84-8 140.79-8 146.74-3.2 143.79 0ZM160.24 0L151.24 0 151.24-27.35 150.24-32.4 151.24-35.4 167.24-35.4Q170.89-35.4 173.81-34.27 176.74-33.15 178.47-30.48 180.19-27.8 180.19-23.1L180.19-23.1Q180.19-18.85 178.64-16.23 177.09-13.6 174.34-12.3L174.34-12.3 174.84-11.75 179.79-5.55 182.64-3 182.64 0 171.39 0 164.39-10.65 160.24-10.65 160.24-8.05 160.74-3.05 160.24 0ZM159.74-27.4L160.24-18.5 165.14-18.5Q167.74-18.5 169.29-19.48 170.84-20.45 170.84-23.1L170.84-23.1Q170.84-24.95 170.09-25.88 169.34-26.8 168.02-27.1 166.69-27.4 164.94-27.4L164.94-27.4 159.74-27.4ZM214.09 0L187.14 0 186.14-3 187.14-8 187.14-35.4 211.89-35.4 214.39-33.9 211.09-26.9 206.59-27.4 196.14-27.4 196.14-21.9 209.59-21.9 209.59-14.15 203.69-14.15 196.14-14.65 196.14-8 211.09-8 217.04-3.2 214.09 0Z"
+        opacity="1"
+        transform="matrix(1,0,0,1,0,0)"
+        fill="#000"
+        data-fill-palette-color="primary"
+      ></path>
+    </svg>
+</div>
 
-This is a template for creating documentation with [Nextra](https://nextra.site).
+<p align="center">
+  <a aria-label="NPM version" href="https://www.npmjs.com/package/quaere">
+    <img alt="" src="https://badgen.net/npm/v/quaere">
+  </a>
+  <a aria-label="Package size" href="https://bundlephobia.com/result?p=swr">
+    <img alt="" src="https://badgen.net/bundlephobia/minzip/quaere">
+  </a>
+  <a aria-label="License" href="https://github.com/vercel/quaere/blob/main/LICENSE">
+    <img alt="" src="https://badgen.net/npm/license/quaere">
+  </a>
+</p>
 
-[**Live Demo →**](https://nextra-docs-template.vercel.app)
+## 介绍
 
-[![](.github/screenshot.png)](https://nextra-docs-template.vercel.app)
+"Quaere" 是拉丁语中的一个词，与 query 语义相似，意为 "寻找"、"探求" 或 "询问"。
+
+Quaere 的核心实现来自于 [Tanstack Query](https://github.com/tanstack/query)，但去除了 `queryKey` 概念，API 设计类似于 [Jotai](https://github.com/pmndrs/jotai)，提供了一套声明式的、原子化的状态管理方案，帮助你高效地管理服务端状态。
+
+类型安全地管理异步状态，并立即拥有以下特性：
+
+- **极速**、**轻量**、**可重用的** 数据请求
+- 内置 **缓存** 和重复请求去除
+- **实时** 体验
+- 传输和协议不可知
+- 支持 SSR / ISR / SSG
+- 支持 TypeScript
+- React Native
+
+Quaere 涵盖了性能，正确性和稳定性的各个方面，以帮你建立更好的体验：
+
+- 快速页面导航
+- 间隔轮询
+- 数据依赖
+- 聚焦时重新验证
+- 网络恢复时重新验证
+- 本地缓存更新 (Optimistic UI)
+- 智能错误重试
+- 分页和滚动位置恢复
+- React Suspense
+
+以及 [更多](https://quaere-site.vercel.app/docs/getting-started)。
+
+---
+
+<br/>
 
 ## Quick Start
 
-Click the button to clone this repository and deploy it on Vercel:
+```js
+import { query, useQuery } from "quaere";
 
-[![](https://vercel.com/button)](https://vercel.com/new/clone?s=https%3A%2F%2Fgithub.com%2Fshuding%2Fnextra-docs-template&showOptionalTeamCreation=false)
+const userQuery = query({ fether: () => fetch("/api/user") });
 
-## Local Development
+function Profile() {
+  const { data, error, isLoading } = useQuery({
+    query: userQuery,
+  });
 
-First, run `pnpm i` to install the dependencies.
+  if (error) return <div>failed to load</div>;
+  if (isLoading) return <div>loading...</div>;
+  return <div>hello {data.name}!</div>;
+}
+```
 
-Then, run `pnpm dev` to start the development server and visit localhost:3000.
+该示例中，`query` hook 接受一个函数 `fetcher`。`fetcher` 可以是任何返回数据的异步函数，你可以使用原生的 fetch 或 Axios 之类的工具。
+
+---
+
+**查看完整的文档和示例，请访问 [quaere-site.vercel.app](ttps://quaere-site.vercel.app).**
+
+<br/>
 
 ## License
 
-This project is licensed under the MIT License.
+The MIT License.
