@@ -80,7 +80,7 @@ function Profile() {
 }
 ```
 
-该示例中，`query` hook 接受一个函数 `fetcher`。`fetcher` 可以是任何返回数据的异步函数，你可以使用原生的 fetch 或 Axios 之类的工具。
+该示例中，`query` 接受一个函数 `fetcher`。`fetcher` 可以是任何返回数据的异步函数，你可以使用原生的 fetch 或 Axios 之类的工具。
 
 ---
 
