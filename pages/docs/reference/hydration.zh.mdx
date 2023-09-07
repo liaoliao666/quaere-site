@@ -8,7 +8,7 @@ title: hydration
 `dehydrate` 创建一个 `cache` 的冻结状态，以后可以使用 `HydrationBoundary` 或 `hydrate` 进行还原。这对于将预取的查询从服务器传递到客户端或将查询持久化到 `localStorage` 或其他持久位置非常有用。默认情况下，它只包括当前成功的查询。
 
 ```tsx
-import { dehydrate } from "@tanstack/react-query";
+import { dehydrate } from "quaere";
 
 const dehydratedState = dehydrate(queryClient, {
   shouldDehydrateQuery,
@@ -35,7 +35,7 @@ const dehydratedState = dehydrate(queryClient, {
   - 您不应该依赖于此响应的确切格式，它不是公共 API 的一部分，可以随时更改
   - 此结果不以序列化形式存在，如果需要，您需要自己执行序列化
 
-### limitations
+### 注意事项
 
 如果你需要脱水一个 `query`，你必须给它一个 `key`。如果没有 `key`，`query` 将不会被脱水。
 
@@ -72,7 +72,7 @@ hydrate(client, state);
 `hydrate` 将以前脱水的状态添加到 `cache`。
 
 ```tsx
-import { hydrate } from "@tanstack/react-query";
+import { hydrate } from "quaere";
 
 hydrate(queryClient, dehydratedState, options);
 ```
@@ -93,7 +93,7 @@ hydrate(queryClient, dehydratedState, options);
   - `queryClient?: QueryClient`,
     - 使用此选项来使用自定义的 `QueryClient`。否则，将使用最近上下文中的 `QueryClient`。
 
-### Limitations
+### 注意事项
 
 如果脱水中包括的 `queries` 已经存在于 `queryCache` 中，`hydrate` 不会覆盖它们，它们将悄悄被丢弃。
 
@@ -104,7 +104,7 @@ hydrate(queryClient, dehydratedState, options);
 `HydrationBoundary` 将以前脱水的状态添加到 `queryClient`，该 `queryClient` 将由 `useQueryClient()` 返回。如果客户端已包含数据，则新查询将根据更新时间戳智能合并。
 
 ```tsx
-import { HydrationBoundary } from "@tanstack/react-query";
+import { HydrationBoundary } from "quaere";
 
 function App() {
   return <HydrationBoundary state={dehydratedState}>...</HydrationBoundary>;

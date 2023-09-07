@@ -1,22 +1,22 @@
 # useIsMutating
 
-`useIsMutating` 是一个可选的钩子，用于返回应用程序正在获取的突变数量（对于应用程序范围的加载指示器非常有用）。
+`useIsMutating` 是一个可选的钩子，用于返回应用程序正在请求的突变数量（对于应用程序范围的加载指示器非常有用）。
 
 ```tsx
 import { useIsMutating } from "quaere";
-// 获取正在获取的突变数量
+// 请求正在请求的突变数量
 const isMutating = useIsMutating();
-// 获取以 "posts" 为前缀的突变数量
+// 请求以 "posts" 为前缀的突变数量
 const isMutatingPosts = useIsMutating({ mutationKey: ["posts"] });
 ```
 
 **选项**
 
-- `filters?: MutationInfoFilters`: [突变过滤器](../guides/filters#mutation-filters)
+- `filters?: MutationInfoFilters`: [突变过滤器](/docs/filters#mutationinfo-filters)
 - `queryClient?: QueryClient`,
   - 使用此选项提供自定义的 QueryClient。否则，将使用最近上下文中的 QueryClient。
 
 **返回**
 
 - `isMutating: number`
-  - 表示应用程序当前正在获取的突变数量。
+  - 表示应用程序当前正在请求的突变数量。

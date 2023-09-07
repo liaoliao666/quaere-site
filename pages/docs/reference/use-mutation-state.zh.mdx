@@ -3,14 +3,14 @@
 `useMutationState` 是一个钩子，它允许您访问 `MutationCache` 中的所有突变。您可以向其传递 `filters` 来缩小突变范围，以及 `select` 来转换突变状态。
 
 ```tsx
-import { useMutationState } from "@tanstack/react-query";
-// 获取所有正在运行的突变的所有变量
+import { useMutationState } from "quaere";
+// 请求所有正在运行的突变的所有变量
 const variables = useMutationState({
   filters: { status: "pending" },
   select: (mutation) => mutation.state.variables,
 });
 
-// 获取所有 "post" 突变的所有数据
+// 请求所有 "post" 突变的所有数据
 const data = useMutationState({
   filters: { mutationKey: ["posts"] },
   select: (mutation) => mutation.state.data,
@@ -20,7 +20,7 @@ const data = useMutationState({
 **选项**
 
 - `options`
-  - `filters?: MutationInfoFilters`: [ 突变过滤器](../guides/filters#mutation-filters)
+  - `filters?: MutationInfoFilters`: [ 突变过滤器](/docs/filters#mutationinfo-filters)
   - `select?: (mutationInfo: MutationInfo) => TResult`
     - 使用此选项来转换突变状态。
 - `queryClient?: QueryClient`,

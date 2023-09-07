@@ -25,7 +25,7 @@ import { useQuery, useMutation } from "quaere"; // ❌ 这在服务器组件中�
 
 ### 客户端组件
 
-你可以使用 `'use client'` 指令或在客户端组件中导入 Quaere，两种方式都允许你使用 Quaere 客户端数据获取钩子。
+你可以使用 `'use client'` 指令或在客户端组件中导入 Quaere，两种方式都允许你使用 Quaere 客户端数据请求钩子。
 
 ```tsx filename="app/page.tsx" highlight={1} copy
 'use client'
@@ -61,21 +61,21 @@ export default Page() {
 }
 ```
 
-## 客户端数据获取 [#client-side-data-fetching]
+## 客户端数据请求 [#client-side-data-fetching]
 
 如果你的页面包含频繁更新的数据，而且不需要预渲染数据，那么 Quaere 非常适合，无需特殊设置：只需导入 useQuery，并在使用数据的任何组件中使用该钩子。
 
 工作原理如下：
 
 - 首先，立即显示不带数据的页面。你可以为缺少的数据显示加载状态。
-- 然后，在客户端上获取数据并在准备就绪时显示它。
-  这种方法非常适用于用户仪表板页面，例如。因为仪表板是一个私有的、用户特定的页面，SEO 不相关，页面不需要预渲染。数据经常更新，需要在请求时获取数据。
+- 然后，在客户端上请求数据并在准备就绪时显示它。
+  这种方法非常适用于用户仪表板页面，例如。因为仪表板是一个私有的、用户特定的页面，SEO 不相关，页面不需要预渲染。数据经常更新，需要在请求时请求数据。
 
 ## 使用默认数据进行预渲染 [#pre-rendering-with-default-data]
 
 如果页面必须预渲染，Next.js 支持 [两种形式的预渲染](https://nextjs.org/docs/basic-features/data-fetching)：**静态生成 (SSG)** 和 **服务器端渲染 (SSR)**。
 
-与 `Quaere` 一起，你可以为 SEO 预渲染页面，并在客户端上具有缓存、重新验证、焦点跟踪、定期重新获取等功能。
+与 `Quaere` 一起，你可以为 SEO 预渲染页面，并在客户端上具有缓存、重新验证、焦点跟踪、定期重新请求等功能。
 
 你可以使用 `HydrationBoundary` 的 `state` 选项将预取的数据传递为所有 `Quaere` hook 的初始值。
 
@@ -83,7 +83,8 @@ export default Page() {
 
 ```jsx
 const articleQuery = query({
-  id: "article",
+  // 注意：当在服务端请求时，必须手动设置key
+  key: "article",
   fetcher: getArticleFromAPI,
 });
 
@@ -121,5 +122,5 @@ export default function Page({ dehydratedState }) {
 
 <Callout emoji="💡">
   `Article`
-  组件首先将渲染预生成的数据，在页面被水合后，它将再次获取最新数据以保持刷新。
+  组件首先将渲染预生成的数据，在页面被水合后，它将再次请求最新数据以保持刷新。
 </Callout>

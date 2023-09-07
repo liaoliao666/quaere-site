@@ -22,14 +22,33 @@ function App() {
 }
 ```
 
-在 Suspense 模式下，`data` 总是请求响应（因此你无需检查它是否是 `undefined`）。但如果发生错误，则需要使用 [错误边界](https://reactjs.org/docs/concurrent-mode-suspense.html#handling-errors) 来捕获它：
+无论您是在查询中使用 `suspense` 还是 `throwOnError`，在某些错误发生后重新渲染时，您都需要一种方法来让查询知道您希望在再次尝试时重置。
+
+查询错误可以使用 `QueryErrorResetBoundary` 组件或 `useQueryErrorResetBoundary` 钩子来重置。
+
+使用该组件将在组件范围内重置任何查询错误：
 
 ```jsx
-<ErrorBoundary fallback={<h2>Could not fetch posts.</h2>}>
-  <Suspense fallback={<h1>Loading posts...</h1>}>
-    <Profile />
-  </Suspense>
-</ErrorBoundary>
+import { QueryErrorResetBoundary } from "quaere";
+import { ErrorBoundary } from "react-error-boundary";
+
+const App: React.FC = () => (
+  <QueryErrorResetBoundary>
+    {({ reset }) => (
+      <ErrorBoundary
+        onReset={reset}
+        fallbackRender={({ resetErrorBoundary }) => (
+          <div>
+            There was an error!
+            <Button onClick={() => resetErrorBoundary()}>Try again</Button>
+          </div>
+        )}
+      >
+        <Page />
+      </ErrorBoundary>
+    )}
+  </QueryErrorResetBoundary>
+);
 ```
 
 <Callout>
@@ -40,9 +59,9 @@ function App() {
 
 ```jsx
 function Profile() {
-  const [userResult, postsResult] = useSuspenseQueries({
+  const [{ data: user }, { data: posts }] = useSuspenseQueries({
     queries: [{ query: userQuery }, { query: postsQuery }],
   });
-  return <div>hello, {userResult.data.name}</div>;
+  return <div>hello, {user.name}</div>;
 }
 ```

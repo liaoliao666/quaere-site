@@ -5,9 +5,9 @@
 **通常情况下，您不会直接与 `MutationCache` 互动，而是使用 `QueryClient。`**
 
 ```tsx
-import { MutationCache } from "quaere";
+import { createMutationCache } from "quaere";
 
-const mutationCache = new MutationCache({
+const mutationCache = createMutationCache({
   onError: (error) => {
     console.log(error);
   },
@@ -78,7 +78,7 @@ const unsubscribe = queryCache.subscribe({ mutation, variables }, callback);
 
 **选项**
 
-- `filters?: MutationInfoFilters`: [突变过滤器](../guides/filters#mutation-filters)
+- `filters?: MutationInfoFilters`: [突变过滤器](/docs/filters#mutationinfo-filters)
 - `callback: (event?: MutationCacheNotifyEvent) => void`
   - 每当缓存更新时，将调用此函数。
 

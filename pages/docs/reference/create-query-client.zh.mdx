@@ -12,7 +12,10 @@ const queryClient = createQueryClient({
     queries: {
       staleTime: Infinity,
     },
+    mutations: {},
   },
+  queryCache,
+  mutationCache,
 });
 ```
 
@@ -52,11 +55,11 @@ const queryClient = createQueryClient({
 
 ## `queryClient.fetchQuery`
 
-`fetchQuery` 是一个异步方法，可用于获取和缓存查询。它要么返回数据，要么抛出错误。如果只想获取查询而不需要结果，可以使用 `prefetchQuery` 方法。
+`fetchQuery` 是一个异步方法，可用于请求和缓存查询。它要么返回数据，要么抛出错误。如果只想请求查询而不需要结果，可以使用 `prefetchQuery` 方法。
 
-如果查询存在并且数据未被失效或早于给定的 `staleTime` ，则将返回缓存中的数据。否则，它将尝试获取最新的数据。
+如果查询存在并且数据未被失效或早于给定的 `staleTime` ，则将返回缓存中的数据。否则，它将尝试请求最新的数据。
 
-> 使用 `fetchQuery` 和 setQueryData` 之间的区别在于，`fetchQuery`是异步的，并确保不会在数据正在获取时为相同查询的`useQuery` 实例创建重复的请求。
+> 使用 `fetchQuery` 和 setQueryData` 之间的区别在于，`fetchQuery`是异步的，并确保不会在数据正在请求时为相同查询的`useQuery` 实例创建重复的请求。
 
 ```tsx
 try {
@@ -66,12 +69,13 @@ try {
 }
 ```
 
-指定 `staleTime` 以仅在数据旧于一定时间时获取：
+指定 `staleTime` 以仅在数据旧于一定时间时请求：
 
 ```tsx
 try {
   const data = await queryClient.fetchQuery({
-    queryKey,
+    query,
+    variables,
     queryFn,
     staleTime: 10000,
   });
@@ -82,7 +86,7 @@ try {
 
 **选项**
 
-`fetchQuery` 的选项与 `useQuery` 的选项完全相同，除了以下内容：`enabled`, `refetchInterval`, `refetchIntervalInBackground`, `refetchOnWindowFocus`, `refetchOnReconnect`, `refetchOnMount`, `notifyOnChangeProps`, `throwOnError`, `select`, `suspense`, `placeholderData`；这些选项仅用于 `useQuery` 和 `useInfiniteQuery`。您可以查看源代码以获取更多明确信息。
+`fetchQuery` 的选项与 `useQuery` 的选项完全相同，除了以下内容：`enabled`, `refetchInterval`, `refetchIntervalInBackground`, `refetchOnWindowFocus`, `refetchOnReconnect`, `refetchOnMount`, `notifyOnChangeProps`, `throwOnError`, `select`, `suspense`, `placeholderData`；这些选项仅用于 `useQuery` 和 `useInfiniteQuery`。您可以查看源代码以请求更多明确信息。
 
 **返回**
 
@@ -93,13 +97,13 @@ try {
 `prefetchQuery` is an asynchronous method that can be used to prefetch a query before it is needed or rendered with `useQuery` and friends. The method works the same as `fetchQuery` except that it will not throw or return any data.
 
 ```tsx
-await queryClient.prefetchQuery({ queryKey, queryFn });
+await queryClient.prefetchQuery({ query, variables, queryFn });
 ```
 
 You can even use it with a default queryFn in your config!
 
 ```tsx
-await queryClient.prefetchQuery({ queryKey });
+await queryClient.prefetchQuery({ query, variables });
 ```
 
 **Options**
@@ -109,11 +113,11 @@ await queryClient.prefetchQuery({ queryKey });
 **返回**
 
 - `Promise<void>`
-  - 返回一个 Promise，如果不需要获取，则会立即解析，或者在查询执行后解析。它不会返回任何数据或抛出任何错误。
+  - 返回一个 Promise，如果不需要请求，则会立即解析，或者在查询执行后解析。它不会返回任何数据或抛出任何错误。
 
 ## `queryClient.getQueryData`
 
-`getQueryData` 是一个同步函数，可用于获取现有查询的缓存数据。如果查询不存在，则将返回 `undefined。`
+`getQueryData` 是一个同步函数，可用于请求现有查询的缓存数据。如果查询不存在，则将返回 `undefined。`
 
 ```tsx
 const data = queryClient.getQueryData({ query, variables });
@@ -126,10 +130,10 @@ const data = queryClient.getQueryData({ query, variables });
 
 ## `queryClient.ensureQueryData`
 
-`ensureQueryData` 是一个异步函数，可用于获取现有查询的缓存数据。如果查询不存在，则将调用 `queryClient.fetchQuery` 并返回其结果。
+`ensureQueryData` 是一个异步函数，可用于请求现有查询的缓存数据。如果查询不存在，则将调用 `queryClient.fetchQuery` 并返回其结果。
 
 ```tsx
-const data = await queryClient.ensureQueryData({ queryKey, queryFn });
+const data = await queryClient.ensureQueryData({ query, variables, queryFn });
 ```
 
 **选项**
@@ -142,7 +146,7 @@ const data = await queryClient.ensureQueryData({ queryKey, queryFn });
 
 ## `queryClient.getQueriesData`
 
-`getQueriesData` 是一个同步函数，可用于获取多个查询的缓存数据。只返回与传递的 queryFilter 匹配的查询。如果没有匹配的查询，则返回空数组。
+`getQueriesData` 是一个同步函数，可用于请求多个查询的缓存数据。只返回与传递的 queryFilter 匹配的查询。如果没有匹配的查询，则返回空数组。
 
 ```tsx
 const data = queryClient.getQueriesData(filters);
@@ -150,7 +154,7 @@ const data = queryClient.getQueriesData(filters);
 
 **选项**
 
-- `filters: QueryFilters`: [Query Filters](../guides/filters#query-filters)
+- `filters: QueryInfoFilters`: [Query Filters](/docs/filters#queryinfo-filters)
   - 如果传递了过滤器，将返回与过滤器匹配的查询键的数据
 
 **返回**
@@ -162,7 +166,7 @@ const data = queryClient.getQueriesData(filters);
 
 `setQueryData` 是一个同步函数，可用于立即更新查询的缓存数据。如果查询不存在，将创建查询。如果查询未在默认的 `gcTime`（5 分钟）内由查询挂钩使用，查询将被垃圾回收。要同时更新多个查询并部分匹配查询键，需要使用 [`queryClient.setQueriesData`](#queryclientsetqueriesdata)。
 
-> 使用 `setQueryData` 和 `fetchQuery` 之间的区别在于，`setQueryData` 是同步的，假定您已经同步可用数据。如果需要异步获取数据，建议重新获取查询键或使用 `fetchQuery` 来处理异步获取。
+> 使用 `setQueryData` 和 `fetchQuery` 之间的区别在于，`setQueryData` 是同步的，假定您已经同步可用数据。如果需要异步请求数据，建议重新请求查询键或使用 `fetchQuery` 来处理异步请求。
 
 ```tsx
 queryClient.setQueryData({ query, variables }, updater);
@@ -170,7 +174,8 @@ queryClient.setQueryData({ query, variables }, updater);
 
 **选项**
 
-- `queryKey: QueryKey`: [Query Keys](../guides/query-keys)
+- `filters: {query: Query, variables: TVariables}`: 查询过滤器
+  - 如果传递了过滤器，将更新与过滤器匹配的查询键
 - `updater: TQueryData | undefined | ((oldData: TQueryData | undefined) => TQueryData | undefined)`
   - 如果传递非函数，则将数据更新为此值
   - 如果传递函数，它将接收旧数据值，并期望返回新数据。
@@ -178,7 +183,7 @@ queryClient.setQueryData({ query, variables }, updater);
 **使用值更新**
 
 ```tsx
-setQueryData(queryKey, newData);
+setQueryData(query, variables, newData);
 ```
 
 如果值为 `undefined` ，则不会更新查询数据。
@@ -188,7 +193,7 @@ setQueryData(queryKey, newData);
 为了语法方便，您还可以传递一个接收当前数据值并返回新数据的更新器函数：
 
 ```tsx
-setQueryData(queryKey, (oldData) => newData);
+setQueryData(query, variables, (oldData) => newData);
 ```
 
 如果更新器函数返回 `undefined` ，则不会更新查询数据。如果更新器函数接收到 `undefined` 作为输入，则可以返回 `undefined` 以退出更新，从而不创建新的缓存条目。
@@ -199,7 +204,7 @@ setQueryData(queryKey, (oldData) => newData);
 
 ## `queryClient.getQueryState`
 
-`getQueryState` 是一个同步函数，可用于获取现有查询的状态。如果查询不存在，则将返回 `undefined。`
+`getQueryState` 是一个同步函数，可用于请求现有查询的状态。如果查询不存在，则将返回 `undefined。`
 
 ```tsx
 const state = queryClient.getQueryState({ query, variables });
@@ -216,17 +221,17 @@ queryClient.setQueriesData(filters, updater);
 
 **选项**
 
-- `filters: QueryFilters`: [Query Filters](../guides/filters#query-filters)
+- `filters: QueryInfoFilters`: [Query Filters](/docs/filters#queryinfo-filters)
   - 如果传递了过滤器，将更新与过滤器匹配的查询键
 - `updater: TQueryFnData | (oldData: TQueryFnData | undefined) => TQueryFnData`
   - [setQueryData](#queryclientsetquerydata) 更新器函数或新数据，将为每个匹配的查询键调用
 
 ## `queryClient.invalidateQueries`
 
-`invalidateQueries` 方法可用于根据查询键或查询的其他可访问属性/状态使单个或多个查询在缓存中失效并重新获取。默认情况下，所有匹配的查询都会立即标记为无效，并且正在活动渲染的查询将在后台重新获取。
+`invalidateQueries` 方法可用于根据查询键或查询的其他可访问属性/状态使单个或多个查询在缓存中失效并重新请求。默认情况下，所有匹配的查询都会立即标记为无效，并且正在活动渲染的查询将在后台重新请求。
 
-- 如果不希望活动查询重新获取，只需使用 `refetchType: 'none'` 选项。
-- 如果希望非活动查询也重新获取，请使用 `refetchType: 'all'` 选项
+- 如果不希望活动查询重新请求，只需使用 `refetchType: 'none'` 选项。
+- 如果希望非活动查询也重新请求，请使用 `refetchType: 'all'` 选项
 
 ```tsx
 await queryClient.invalidateQueries(
@@ -242,38 +247,38 @@ await queryClient.invalidateQueries(
 
 **选项**
 
-- `filters?: QueryFilters`: [查询过滤器](../guides/filters#query-filters)
+- `filters?: QueryInfoFilters`: [查询过滤器](/docs/filters#queryinfo-filters)
   - `refetchType?: 'active' | 'inactive' | 'all' | 'none'`
     - 默认为 `'active'`
-    - 当设置为 `active` 时，只有匹配重新获取条件并且通过 `useQuery` 和相关功能正在活动渲染的查询才会在后台重新获取。
-    - 当设置为 `inactive` 时，只有匹配重新获取条件并且未通过 `useQuery` 和相关功能活动渲染的查询才会在后台重新获取。
-    - 当设置为 `all` 时，将重新获取所有匹配重新获取条件的查询。
-    - 当设置为 `none` 时，不会重新获取任何查询，并且与重新获取条件匹配的查询仅标记为无效。
+    - 当设置为 `active` 时，只有匹配重新请求条件并且通过 `useQuery` 和相关功能正在活动渲染的查询才会在后台重新请求。
+    - 当设置为 `inactive` 时，只有匹配重新请求条件并且未通过 `useQuery` 和相关功能活动渲染的查询才会在后台重新请求。
+    - 当设置为 `all` 时，将重新请求所有匹配重新请求条件的查询。
+    - 当设置为 `none` 时，不会重新请求任何查询，并且与重新请求条件匹配的查询仅标记为无效。
 - `options?: InvalidateOptions`:
   - `throwOnError?: boolean`
-    - 当设置为 `true` 时，如果任何查询重新获取任务失败，此方法将引发错误。
+    - 当设置为 `true` 时，如果任何查询重新请求任务失败，此方法将引发错误。
   - `cancelRefetch?: boolean`
     - 默认为 `true`
       - 默认情况下，在创建新请求之前将取消当前正在运行的请求
-    - 当设置为 `false` 时，如果已经有请求正在运行，将不会进行重新获取。
+    - 当设置为 `false` 时，如果已经有请求正在运行，将不会进行重新请求。
 
 ## `queryClient.refetchQueries`
 
-`refetchQueries` 方法可用于根据某些条件重新获取查询。
+`refetchQueries` 方法可用于根据某些条件重新请求查询。
 
 示例:
 
 ```tsx
-// 重新获取所有查询：
+// 重新请求所有查询：
 await queryClient.refetchQueries();
 
-// 重新获取所有陈旧的查询：
+// 重新请求所有过期的查询：
 await queryClient.refetchQueries({ stale: true });
 
-// 重新获取所有部分匹配 query 的活动查询：
+// 重新请求所有部分匹配 query 的活动查询：
 await queryClient.refetchQueries({ query: postsQuery, type: "active" });
 
-// 重新获取完全匹配 query 和 variables 的活动查询：
+// 重新请求完全匹配 query 和 variables 的活动查询：
 await queryClient.refetchQueries({
   query: postsQuery,
   variables: 1,
@@ -284,24 +289,24 @@ await queryClient.refetchQueries({
 
 **选项**
 
-- `filters?: QueryFilters`：查询过滤器
+- `filters?: QueryInfoFilters`：查询过滤器
 - `options?: RefetchOptions`：
   - `throwOnError?: boolean`
-    当设置为 true 时，如果任何查询重新获取任务失败，此方法将引发错误。
+    当设置为 true 时，如果任何查询重新请求任务失败，此方法将引发错误。
   - `cancelRefetch?: boolean`
     默认为 `true`
     默认情况下，在创建新请求之前将取消当前正在运行的请求
-    当设置为 `false` 时，如果已经有请求正在运行，将不会进行重新获取。
+    当设置为 `false` 时，如果已经有请求正在运行，将不会进行重新请求。
 
 **返回**
 
-此函数返回一个 `promise`，该 `promise` 将在所有查询完成重新获取时解析。默认情况下，如果其中任何查询重新获取失败，它不会引发错误，但可以通过将 `throwOnError` 选项设置为 `true` 来配置。
+此函数返回一个 `promise`，该 `promise` 将在所有查询完成重新请求时解析。默认情况下，如果其中任何查询重新请求失败，它不会引发错误，但可以通过将 `throwOnError` 选项设置为 `true` 来配置。
 
 ## `queryClient.cancelQueries`
 
 `cancelQueries` 方法可用于根据查询键或查询的其他可访问属性/状态取消正在进行的查询。
 
-这在执行乐观更新时最有用，因为您可能需要取消任何正在进行的查询重新获取，以防它们在解析时覆盖您的乐观更新。
+这在执行乐观更新时最有用，因为您可能需要取消任何正在进行的查询重新请求，以防它们在解析时覆盖您的乐观更新。
 
 ```tsx
 await queryClient.cancelQueries({ query, variables, exact: true });
@@ -309,7 +314,7 @@ await queryClient.cancelQueries({ query, variables, exact: true });
 
 **选项**
 
-- `filters?: QueryFilters`: [查询过滤器](../guides/filters#query-filters)
+- `filters?: QueryInfoFilters`: [查询过滤器](/docs/filters#queryinfo-filters)
 
 **返回**
 
@@ -320,12 +325,12 @@ await queryClient.cancelQueries({ query, variables, exact: true });
 `removeQueries` 方法可用于根据查询键或查询的其他可访问属性/状态从缓存中删除查询。
 
 ```tsx
-queryClient.removeQueries({ queryKey, exact: true });
+queryClient.removeQueries({ query, variables, exact: true });
 ```
 
 **选项**
 
-- `filters?: 查询过滤器`: [Query Filters](../guides/filters#query-filters)
+- `filters?: 查询过滤器`: [Query Filters](/docs/filters#queryinfo-filters)
 
 **返回**
 
@@ -335,7 +340,7 @@ queryClient.removeQueries({ queryKey, exact: true });
 
 `resetQueries` 方法可用于根据查询键或查询的其他可访问属性/状态将查询重置为其初始状态。
 
-这将通知订阅者，与 `clear` 不同，后者会删除所有订阅者，并将查询重置为其预加载状态，与 `invalidateQueries` 不同。如果查询具有 `initialData`，则将查询的数据重置为该数据。如果查询处于活动状态，它将重新获取。
+这将通知订阅者，与 `clear` 不同，后者会删除所有订阅者，并将查询重置为其预加载状态，与 `invalidateQueries` 不同。如果查询具有 `initialData`，则将查询的数据重置为该数据。如果查询处于活动状态，它将重新请求。
 
 ```tsx
 queryClient.resetQueries({ query, variables, exact: true });
@@ -343,26 +348,26 @@ queryClient.resetQueries({ query, variables, exact: true });
 
 **选项**
 
-- `filters?: QueryFilters`: [查询过滤器](../guides/filters#query-filters)
+- `filters?: QueryInfoFilters`: [查询过滤器](/docs/filters#queryinfo-filters)
 - `options?: ResetOptions`:
   - `throwOnError?: boolean`
-    - 当设置为 `true` 时，如果任何查询重新获取任务失败，此方法将引发错误。
+    - 当设置为 `true` 时，如果任何查询重新请求任务失败，此方法将引发错误。
   - `cancelRefetch?: boolean`
     - 默认为 `true`
       - 默认情况下，在创建新请求之前将取消当前正在运行的请求
-    - 当设置为 `false` 时，如果已经有请求正在运行，将不会进行重新获取。
+    - 当设置为 `false` 时，如果已经有请求正在运行，将不会进行重新请求。
 
 **返回**
 
-此方法返回一个 promise，该 promise 在所有活动查询都已重新获取时解析。
+此方法返回一个 promise，该 promise 在所有活动查询都已重新请求时解析。
 
 ## `queryClient.isFetching`
 
-`isFetching` 方法返回一个表示缓存中当前正在获取（包括后台获取、加载新页面或加载更多无限查询结果）的查询数量的整数。
+`isFetching` 方法返回一个表示缓存中当前正在请求（包括后台请求、加载新页面或加载更多无限查询结果）的查询数量的整数。
 
 ```tsx
 if (queryClient.isFetching()) {
-  console.log("至少有一个查询正在获取！");
+  console.log("至少有一个查询正在请求！");
 }
 ```
 
@@ -370,15 +375,15 @@ Quaere 还导出了一个方便的 [`useIsFetching`](../reference/useIsFetching)
 
 **选项**
 
-- `filters?: QueryFilters`: [Query Filters](../guides/filters#query-filters)
+- `filters?: QueryInfoFilters`: [Query Filters](/docs/filters#queryinfo-filters)
 
 **返回**
 
-此方法返回获取查询的数量。
+此方法返回请求查询的数量。
 
 ## `queryClient.isMutating`
 
-`isMutating` 方法返回一个表示缓存中当前正在获取的突变数量的整数。
+`isMutating` 方法返回一个表示缓存中当前正在请求的突变数量的整数。
 
 ```tsx
 if (queryClient.isMutating()) {
@@ -390,11 +395,11 @@ Quaere 还导出了一个方便的 [`useIsMutating`](../reference/useIsMutating)
 
 **选项**
 
-- `filters: 突变过滤器`: [Mutation Filters](../guides/filters#mutation-filters)
+- `filters: 突变过滤器`: [Mutation Filters](/docs/filters#mutationinfo-filters)
 
 **Returns**
 
-此方法返回正在获取的突变的数量。
+此方法返回正在请求的突变的数量。
 
 ## `queryClient.getDefaultOptions`
 

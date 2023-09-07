@@ -1,0 +1,73 @@
+# 过滤器
+
+在 Quaere 中，一些方法接受 `查询过滤器` 或 `突变过滤器` 对象。
+
+## 查询过滤器 [#queryinfo-filters]
+
+查询过滤器是一个带有特定条件的对象，用于匹配查询：
+
+```tsx
+// 取消所有查询
+await queryClient.cancelQueries();
+
+// 移除所有所有 postsQuery 相关且处于非活动状态的查询
+queryClient.removeQueries({ query: postsQuery, type: "inactive" });
+
+// 重新请求所有活动查询
+await queryClient.refetchQueries({ type: "active" });
+
+// 重新请求所有 postsQuery 相关且处于活动状态的查询
+await queryClient.refetchQueries({ query: postsQuery, type: "active" });
+```
+
+查询过滤器对象支持以下属性
+
+- `query?: Query`
+  - 设置此属性以定义要匹配的查询配置。
+- `variables?: TVars`
+  - 设置此属性以定义要匹配的查询变量。
+- `exact?: boolean`
+  - 如果您不想通过查询键包含地搜索查询，可以传递 `exact: true` 选项，以仅返回与您传递的完全相同的 `query` 和 `variables` 匹配的查询。
+- `type?: 'active' | 'inactive' | 'all'`
+  - 默认为 `all`
+  - 当设置为 active 时，它将匹配活动查询。
+  - 当设置为 inactive 时，它将匹配非活动查询。
+- `stale?: boolean`
+  - 当设置为 `true` 时，它将匹配过期的查询。
+  - 当设置为 `false` 时，它将匹配新鲜的查询。
+- `fetchStatus?: FetchStatus`
+  - 当设置为 fetching 时，它将匹配当前正在请求的查询。
+  - 当设置为 paused 时，它将匹配想要请求但已被 paused 的查询。
+  - 当设置为 idle 时，它将匹配未在请求的查询。
+- `predicate?: (queryInfo: QueryInfo) => boolean`
+  - 此谓词函数将用作对所有匹配查询的最终过滤器。如果未指定其他过滤器，将对缓存中的每个查询评估此函数。
+
+## 突变过滤器 [#mutationinfo-filters]
+
+突变过滤器是一个带有特定条件的对象，用于匹配突变：
+
+```tsx
+// 请求所有正在请求的突变的数量
+await queryClient.isMutating();
+
+// 通过 mutationKey 过滤突变
+await queryClient.isMutating({ mutationKey: ["post"] });
+
+// 使用谓词函数过滤突变
+await queryClient.isMutating({
+  predicate: (mutationInfo) => mutationInfo.state.variables?.id === 1,
+});
+```
+
+突变过滤器对象支持以下属性：
+
+- `mutation?: Mutation`
+  - 设置此属性以定义要匹配的突变配置。
+- `variables?: TVars`
+  - 设置此属性以定义要匹配的查询变量。
+- `exact?: boolean`
+  - 如果您不想通过查询键包含地搜索查询，可以传递 `exact: true` 选项，以仅返回与您传递的完全相同的 `mutation` 和 `variables` 匹配的查询。
+- `status?: MutationStatus`
+  - 允许根据其状态过滤突变。
+- `predicate?: (mutation: MutationInfo) => boolean`
+  - 此谓词函数将用作对所有匹配突变的最终过滤器。如果未指定其他过滤器，将对缓存中的每个突变评估此函数。

@@ -17,7 +17,7 @@
 `setEventListener` 用于设置自定义事件侦听器：
 
 ```tsx
-import { focusManager } from "@tanstack/react-query";
+import { focusManager } from "quaere";
 
 focusManager.setEventListener((handleFocus) => {
   // 监听 visibilitychange 事件
@@ -37,7 +37,7 @@ focusManager.setEventListener((handleFocus) => {
 `subscribe` 用于订阅可见性状态的更改。它返回一个取消订阅函数：
 
 ```tsx
-import { focusManager } from "@tanstack/react-query";
+import { focusManager } from "quaere";
 
 const unsubscribe = focusManager.subscribe((isVisible) => {
   console.log("isVisible", isVisible);
@@ -49,7 +49,7 @@ const unsubscribe = focusManager.subscribe((isVisible) => {
 `setFocused` 用于手动设置焦点状态。将 `undefined` 设置为使用默认焦点检查。
 
 ```tsx
-import { focusManager } from "@tanstack/react-query";
+import { focusManager } from "quaere";
 
 // 设置为有焦点
 focusManager.setFocused(true);
@@ -67,7 +67,7 @@ focusManager.setFocused(undefined);
 
 ## `focusManager.isFocused`
 
-`isFocused` 用于获取当前的焦点状态。
+`isFocused` 用于请求当前的焦点状态。
 
 ```tsx
 const isFocused = focusManager.isFocused();

@@ -17,7 +17,7 @@
 
 ```tsx
 import NetInfo from "@react-native-community/netinfo";
-import { onlineManager } from "@tanstack/react-query";
+import { onlineManager } from "quaere";
 
 onlineManager.setEventListener((setOnline) => {
   return NetInfo.addEventListener((state) => {
@@ -31,7 +31,7 @@ onlineManager.setEventListener((setOnline) => {
 `subscribe` 用于订阅在线状态的更改。它返回一个取消订阅函数：
 
 ```tsx
-import { onlineManager } from "@tanstack/react-query";
+import { onlineManager } from "quaere";
 
 const unsubscribe = onlineManager.subscribe((isOnline) => {
   console.log("isOnline", isOnline);
@@ -43,7 +43,7 @@ const unsubscribe = onlineManager.subscribe((isOnline) => {
 `setOnline` 可以用于手动设置在线状态。
 
 ```tsx
-import { onlineManager } from "@tanstack/react-query";
+import { onlineManager } from "quaere";
 
 // 设置为在线
 onlineManager.setOnline(true);
@@ -58,7 +58,7 @@ onlineManager.setOnline(false);
 
 ## `onlineManager.isOnline`
 
-`isOnline` 用于获取当前的在线状态。
+`isOnline` 用于请求当前的在线状态。
 
 ```tsx
 const isOnline = onlineManager.isOnline();

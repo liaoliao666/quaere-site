@@ -57,28 +57,28 @@ const {
 
 - `isFetchingNextPage: boolean`
 
-  - 在使用 `fetchNextPage` 获取下一页时为 `true`。
+  - 在使用 `fetchNextPage` 请求下一页时为 `true`。
 
 - `isFetchingPreviousPage: boolean`
 
-  - 在使用 `fetchPreviousPage` 获取上一页时为 `true`。
+  - 在使用 `fetchPreviousPage` 请求上一页时为 `true`。
 
 - `fetchNextPage: (options?: FetchNextPageOptions) => Promise<TData>`
 
-  - 此函数允许您获取下一页的结果。
+  - 此函数允许您请求下一页的结果。
   - `options.cancelRefetch: boolean`，如果设置为 `true`，多次调用 `fetchNextPage` 将每次调用 `fetchPage`，无论之前的调用是否已解决。同时，忽略之前调用的结果。如果设置为 `false`，多次调用 `fetchNextPage` 在第一个调用未解决之前不会产生任何影响。默认值为 `true`。
 
 - `fetchPreviousPage: (options?: FetchPreviousPageOptions) => Promise<TData>`
 
-  - 此函数允许您获取上一页的结果。
+  - 此函数允许您请求上一页的结果。
   - `options.cancelRefetch: boolean`，与 `fetchNextPage` 相同。
 
 - `hasNextPage: boolean`
 
-  - 如果有下一页要获取（通过 `getNextPageParam` 选项得知），则为 `true`。
+  - 如果有下一页要请求（通过 `getNextPageParam` 选项得知），则为 `true`。
 
 - `hasPreviousPage: boolean`
-  - 如果有上一页要获取（通过 `getPreviousPageParam` 选项得知），则为 `true`。
+  - 如果有上一页要请求（通过 `getPreviousPageParam` 选项得知），则为 `true`。
 
 ### 选项 [#options]
 
@@ -87,7 +87,7 @@ const {
 - `initialPageParam: number`
 
   - **必需**
-  - 获取第一页时使用的默认页参数。
+  - 请求第一页时使用的默认页参数。
 
 - `getNextPageParam: (lastPage, allPages, lastPageParam, allPageParams) => number | undefined | null`
 

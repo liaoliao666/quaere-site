@@ -2,8 +2,9 @@
 
 ```ts
 const anQuery = query({
-  // 如果设置了 id，dehrydrate 函数将会保留该 query。
-  id: string,
+  // 注意：当你想要在服务端请求或持久化请求结果时，必须手动设置key
+  // 如果设置，dehrydrate 函数将会保留该 key 相关的查询
+  key: string,
   // 必选，用于请求数据的函数。
   fetcher: (variables: TVars, context: QueryFunctionContext) => Promise<TData>,
   // 选项
@@ -16,7 +17,7 @@ const { data, error, isLoading, isFetching, refetch, setData } = useQuery({
   // 必选，用于读取状态中的该 `query` 所对应的值。
   query: anQuery,
   // 传入 `fetcher` 函数的变量
-  variables: TVars,
+  variables,
   // 将会覆盖 query 函数中的选项
   ...options,
 });
@@ -25,15 +26,15 @@ const { data, error, isLoading, isFetching, refetch, setData } = useQuery({
 ## 返回值 [#return-values]
 
 - `data`: 由 `fetcher` 解析的给定 `variables` 的数据（如果未加载，则 `undefined`）
-- `error`: `fetcher` 引发的错误（或 `undefined`）
+- `error`: `fetcher` 引发的错误（或 `null`）
 - `refetch()`: 重新查询
-- `isLoading`: 当查询的第一次获取请求正在进行中时，则为 `true`。
+- `isLoading`: 当查询的第一次请求请求正在进行中时，则为 `true`。
 - `isFetching`: 如果正在加载请求或重新请求数据
 - `isPlaceholderData`: 如果显示的数据是 `placeholderData` 选项返回的占位数据，则为 `true`。
 
 ## 选项 [#options]
 
-- `enabled: boolean | (data: TData, queryInfo: QueryInfo) => number`
+- `enabled: boolean | (data: TData, variables: TVars) => boolean`
   - 默认为 `true`
   - 如果设置为 `false`，则查询将不会在挂载时触发。
   - 如果设置为函数，则将执行函数以计算值。
@@ -62,27 +63,27 @@ const { data, error, isLoading, isFetching, refetch, setData } = useQuery({
 - `queryKeyHashFn: (queryKey: QueryKey) => string`
   - 如果指定，此函数用于将 `queryKey` 哈希为字符串。
 - `refetchInterval: number | false | ((data: TData | undefined, queryInfo: QueryInfo) => number | false | undefined)`
-  - 如果设置为数字，所有查询将以毫秒为单位以此频率连续重新获取。
+  - 如果设置为数字，所有查询将以毫秒为单位以此频率连续重新请求。
   - 如果设置为函数，则将使用最新数据和查询执行函数以计算频率。
 - `refetchIntervalInBackground: boolean`
-  - 如果设置为 `true`，则设置为连续重新获取的查询将在其选项卡/窗口在后台时继续重新获取。
+  - 如果设置为 `true`，则设置为连续重新请求的查询将在其选项卡/窗口在后台时继续重新请求。
 - `refetchOnMount: boolean | "always" | ((queryInfo: QueryInfo) => boolean | "always")`
   - 默认为 `true`
-  - 如果设置为 `true`，如果数据过期，查询将在挂载时重新获取。
-  - 如果设置为 `false`，查询将不会在挂载时重新获取。
-  - 如果设置为 `"always"`，查询将始终在挂载时重新获取。
+  - 如果设置为 `true`，如果数据过期，查询将在挂载时重新请求。
+  - 如果设置为 `false`，查询将不会在挂载时重新请求。
+  - 如果设置为 `"always"`，查询将始终在挂载时重新请求。
   - 如果设置为函数，则将执行函数以计算值。
 - `refetchOnWindowFocus: boolean | "always" | ((queryInfo: QueryInfo) => boolean | "always")`
   - 默认为 `true`
-  - 如果设置为 `true`，如果数据过期，查询将在窗口获得焦点时重新获取。
-  - 如果设置为 `false`，查询将不会在窗口获得焦点时重新获取。
-  - 如果设置为 `"always"`，查询将始终在窗口获得焦点时重新获取。
+  - 如果设置为 `true`，如果数据过期，查询将在窗口获得焦点时重新请求。
+  - 如果设置为 `false`，查询将不会在窗口获得焦点时重新请求。
+  - 如果设置为 `"always"`，查询将始终在窗口获得焦点时重新请求。
   - 如果设置为函数，则将执行函数以计算值。
 - `refetchOnReconnect: boolean | "always" | ((queryInfo: QueryInfo) => boolean | "always")`
   - 默认为 `true`
-  - 如果设置为 `true`，如果数据过期，查询将在重新连接时重新获取。
-  - 如果设置为 `false`，查询将不会在重新连接时重新获取。
-  - 如果设置为 `"always"`，查询将始终在重新连接时重新获取。
+  - 如果设置为 `true`，如果数据过期，查询将在重新连接时重新请求。
+  - 如果设置为 `false`，查询将不会在重新连接时重新请求。
+  - 如果设置为 `"always"`，查询将始终在重新连接时重新请求。
   - 如果设置为函数，则将执行函数以计算值。
 - `select: (data: TData) => unknown`
   - 此选项可用于转换或选择查询函数返回的数据的一部分。它影响返回的 `data` 值，但不影响存储在查询缓存中的内容。
@@ -128,5 +129,5 @@ const { data, error, isLoading, isFetching, refetch, setData } = useQuery({
 此外，当使用 [queryWithInfinite](docs/infinite) 还会传递以下选项：
 
 - `pageParam: TPageParam`
-  - 用于获取当前页的页面参数
+  - 用于请求当前页的页面参数
 - `direction: 'forward' | 'backward'`

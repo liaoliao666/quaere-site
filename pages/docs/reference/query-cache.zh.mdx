@@ -5,9 +5,9 @@
 **通常情况下，您不会直接与 `QueryCache` 互动，而是使用 `QueryClient` 来操作特定的缓存。**
 
 ```tsx
-import { QueryCache } from "quaere";
+import { createQueryCache } from "quaere";
 
-const queryCache = new QueryCache({
+const queryCache = createQueryCache({
   onError: (error) => {
     console.log(error);
   },
@@ -47,7 +47,7 @@ const queryInfo = queryCache.find({ query: postsQuery, variables });
 
 ## `queryCache.find`
 
-`find` 是一个稍微高级的同步方法，可用于从缓存中获取现有查询实例。此实例不仅包含查询的所有状态，还包括所有实例和查询的底层内部信息。如果查询不存在，将返回 `undefined`。
+`find` 是一个稍微高级的同步方法，可用于从缓存中请求现有查询实例。此实例不仅包含查询的所有状态，还包括所有实例和查询的底层内部信息。如果查询不存在，将返回 `undefined`。
 
 > 注意：大多数应用程序通常不需要这样做，但在稀有情况下需要更多关于查询的信息时可能会有用（例如，查看 query.state.dataUpdatedAt 时间戳，以确定查询是否足够新以用作初始值）
 
@@ -57,7 +57,7 @@ const queryInfo = queryCache.find({ query: postsQuery, variables });
 
 **选项**
 
-- `filters?: QueryFilters`: [查询过滤器](../guides/filters#query-filters)
+- `filters?: QueryInfoFilters`: [查询过滤器](/docs/filters#queryinfo-filters)
 
 **返回**
 
@@ -66,7 +66,7 @@ const queryInfo = queryCache.find({ query: postsQuery, variables });
 
 ## `queryCache.findAll`
 
-`findAll` 是更高级的同步方法，可用于从缓存中获取部分匹配查询键的现有查询实例。如果查询不存在，将返回空数组。
+`findAll` 是更高级的同步方法，可用于从缓存中请求部分匹配查询键的现有查询实例。如果查询不存在，将返回空数组。
 
 > 注意：大多数应用程序通常不需要这样做，但在稀有情况下需要更多关于查询的信息时可能会有用
 
@@ -76,7 +76,7 @@ const queries = queryCache.findAll({ query: postsQuery });
 
 **选项**
 
-- `filters?: QueryFilters`: [查询过滤器](../guides/filters#query-filters)
+- `filters?: QueryInfoFilters`: [查询过滤器](/docs/filters#queryinfo-filters)
 
 **返回**
 
@@ -101,7 +101,7 @@ const unsubscribe = queryCache.subscribe({ query, variables }, callback);
 
 **选项**
 
-- `filters?: QueryFilters`: [查询过滤器](../guides/filters#query-filters)
+- `filters?: QueryInfoFilters`: [查询过滤器](/docs/filters#queryinfo-filters)
 - `callback: (event: QueryCacheNotifyEvent) => void`
   - 每当通过其跟踪的更新机制（例如，`queryInfo.setState`、`queryClient.removeQueries` 等）更新查询缓存时，将调用此函数。不鼓励对缓存进行超出范围的突变，不会触发订阅回调
 

@@ -1,8 +1,9 @@
 import React from "react";
 import { DocsThemeConfig } from "nextra-theme-docs";
+import { Logo } from "./components/logo";
 
 const config: DocsThemeConfig = {
-  logo: <span>Quaere</span>,
+  logo: <Logo height={20} />,
   project: {
     link: "https://github.com/shuding/nextra-docs-template",
   },
@@ -14,7 +15,7 @@ const config: DocsThemeConfig = {
     text: "Quaere Docs",
   },
   i18n: [
-    { locale: "en", text: "English" },
+    // { locale: "en", text: "English" },
     { locale: "zh", text: "中文" },
   ],
   search: {

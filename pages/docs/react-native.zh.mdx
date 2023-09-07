@@ -6,7 +6,7 @@ import { Callout } from "nextra-theme-docs";
 
 ## 在线状态管理
 
-Quaere 已经支持在 Web 浏览器中自动重新获取连接。要在 Quaere 中添加这个行为，您需要使用 Quaere 的 `onlineManager` ，示例如下：
+Quaere 已经支持在 Web 浏览器中自动重新请求连接。要在 Quaere 中添加这个行为，您需要使用 Quaere 的 `onlineManager` ，示例如下：
 
 ```tsx
 import NetInfo from "@react-native-community/netinfo";
@@ -27,7 +27,7 @@ onlineManager.setEventListener((setOnline) => {
 import { useEffect } from "react";
 import { AppState, Platform } from "react-native";
 import type { AppStateStatus } from "react-native";
-import { focusManager } from "@tanstack/react-query";
+import { focusManager } from "quaere";
 
 function onAppStateChange(status: AppStateStatus) {
   if (Platform.OS !== "web") {

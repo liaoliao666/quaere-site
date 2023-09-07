@@ -42,7 +42,7 @@ const { data, error, trigger, reset, isMutating } = useMutation({
 - `networkMode: 'online' | 'always' | 'offlineFirst'`
 
   - 默认值为 `'online'`
-  - 参见 [Network Mode](../guides/network-mode) 获取更多信息。
+  - 参见 [Network Mode](../guides/network-mode) 请求更多信息。
 
 - `onSuccess: (data: TData, variables: TVariables, obsMutation: ObservableMutation) => Promise<unknown> | unknown`
 
@@ -56,7 +56,7 @@ const { data, error, trigger, reset, isMutating } = useMutation({
 
 - `onSettled: (data: TData, error: TError, variables: TVariables, obsMutation: ObservableMutation) => Promise<unknown> | unknown`
 
-  - 此函数将在请求成功获取数据或遇到错误时触发，并传递数据或错误。
+  - 此函数将在请求成功请求数据或遇到错误时触发，并传递数据或错误。
   - 如果返回一个 Promise，将在继续之前等待和解析该 Promise。
 
 - `retry: boolean | number | (failureCount: number, error: TError) => boolean`
@@ -155,7 +155,7 @@ function Profile() {
             // 请求错误，执行回滚
             queryClient.setQueryData({ query: userQuery }, previousData);
           } finally {
-            // 错误或成功后重新获取数据
+            // 错误或成功后重新请求数据
             refetch();
           }
         }}

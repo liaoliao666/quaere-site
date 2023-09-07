@@ -1,11 +1,15 @@
 {
-  "index": {
-    "title": "简介",
-    "type": "page",
-    "display": "hidden"
-  },
-  "docs": {
-    "title": "文档",
-    "type": "page"
+    "index": {
+      "title": "简介",
+      "type": "page",
+      "display": "hidden"
+    },
+    "docs": {
+      "title": "文档",
+      "type": "page"
+    },
+    "examples": {
+      "title": "示例",
+      "type": "page"
+    }
   }
-}

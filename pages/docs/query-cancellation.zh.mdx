@@ -1,0 +1,112 @@
+# 取消查询
+
+Quaere 为每个查询函数提供了一个 [`AbortSignal` 实例](https://developer.mozilla.org/docs/Web/API/AbortSignal)。当查询变得过时或不活动时，此 `signal` 将被中止。这意味着所有查询都可以被取消，如果需要，您可以在查询函数内部响应取消。最重要的是，它允许您继续使用正常的异步/等待语法，同时获得自动取消的所有好处。
+
+`AbortController` API 在[大多数运行环境](https://developer.mozilla.org/docs/Web/API/AbortController#browser_compatibility)中可用，但如果您的运行环境不支持它，您需要提供一个 polyfill。有[几个可用](https://www.npmjs.com/search?q=abortcontroller%20polyfill)。
+
+## 默认行为
+
+默认情况下，在承诺解决之前卸载或变得未使用的查询 _不会_ 被取消。这意味着在承诺解决后，结果数据将在缓存中可用。如果您开始接收查询，然后在完成之前卸载组件，这是有帮助的。如果再次挂载组件而查询尚未被垃圾回收，数据将可用。
+
+但是，如果您使用`AbortSignal`，则 Promise 将被取消（例如，中止获取操作），因此查询也必须被取消。取消查询将导致其状态被 _还原_ 到先前的状态。
+
+## 使用 `fetch`
+
+[//]: # "示例"
+
+```tsx
+query({
+  fetcher: async (varibales, { signal }) => {
+    const todosResponse = await fetch("/todos", {
+      // 将 signal 传递给一个 fetch
+      signal,
+    });
+    const todos = await todosResponse.json();
+
+    const todoDetails = todos.map(async ({ details }) => {
+      const response = await fetch(details, {
+        // 或将其传递给多个
+        signal,
+      });
+      return response.json();
+    });
+
+    return Promise.all(todoDetails);
+  },
+});
+```
+
+## 使用 `axios` [v0.22.0+](https://github.com/axios/axios/releases/tag/v0.22.0)
+
+```tsx
+import axios from "axios";
+
+query({
+  fetcher: (varibales, { signal }) =>
+    axios.get("/todos", {
+      // 将 signal 传递给 `axios`
+      signal,
+    }),
+});
+```
+
+## 使用 `XMLHttpRequest`
+
+```tsx
+query({
+  fetcher: (varibales, { signal }) => {
+    return new Promise((resolve, reject) => {
+      var oReq = new XMLHttpRequest();
+      oReq.addEventListener("load", () => {
+        resolve(JSON.parse(oReq.responseText));
+      });
+      signal?.addEventListener("abort", () => {
+        oReq.abort();
+        reject();
+      });
+      oReq.open("GET", "/todos");
+      oReq.send();
+    });
+  },
+});
+```
+
+## 使用 `graphql-request`
+
+可以在客户端的 request 方法中设置 AbortSignal。
+
+```tsx
+const client = new GraphQLClient(endpoint);
+
+query({
+  fetcher: (varibales, { signal }) => {
+    client.request({ document: query, signal });
+  },
+});
+```
+
+## 手动取消
+
+您可能希望手动取消查询。例如，如果请求花费很长时间才能完成，您可以允许用户单击取消按钮来停止请求。要做到这一点，您只需调用 `queryClient.cancelQueries({ query })`，这将取消查询并将其还原回其先前的状态。如果您已使用传递给查询函数的 signal，Quaere 还将取消 Promise。
+
+```tsx
+const todosQuery = query({
+  fetcher: async ({ signal }) => {
+    const resp = await fetch("/todos", { signal });
+    return resp.json();
+  },
+});
+
+const queryClient = useQueryClient();
+
+return (
+  <button
+    onClick={(e) => {
+      e.preventDefault();
+      queryClient.cancelQueries({ query: todosQuery });
+    }}
+  >
+    取消
+  </button>
+);
+```
