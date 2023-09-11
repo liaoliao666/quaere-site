@@ -24,7 +24,7 @@ const anQuery = query({ fetcher: () => fetch(url).then((r) => r.json()) });
 import axios from "axios";
 
 const anQuery = query({
-  fetcher: (variables) => axios.get(url, variables).then((res) => res.data),
+  fetcher: (variables) => axios.get(url, variables).then((r) => r.data),
 });
 ```
 

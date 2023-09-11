@@ -16,7 +16,7 @@ Quaere 为每个查询函数提供了一个 [`AbortSignal` 实例](https://devel
 
 ```tsx
 query({
-  fetcher: async (varibales, { signal }) => {
+  fetcher: async (variables, { signal }) => {
     const todosResponse = await fetch("/todos", {
       // 将 signal 传递给一个 fetch
       signal,
@@ -42,7 +42,7 @@ query({
 import axios from "axios";
 
 query({
-  fetcher: (varibales, { signal }) =>
+  fetcher: (variables, { signal }) =>
     axios.get("/todos", {
       // 将 signal 传递给 `axios`
       signal,
@@ -54,7 +54,7 @@ query({
 
 ```tsx
 query({
-  fetcher: (varibales, { signal }) => {
+  fetcher: (variables, { signal }) => {
     return new Promise((resolve, reject) => {
       var oReq = new XMLHttpRequest();
       oReq.addEventListener("load", () => {
@@ -79,7 +79,7 @@ query({
 const client = new GraphQLClient(endpoint);
 
 query({
-  fetcher: (varibales, { signal }) => {
+  fetcher: (variables, { signal }) => {
     client.request({ document: query, signal });
   },
 });

@@ -5,12 +5,12 @@ import { Logo } from "./components/logo";
 const config: DocsThemeConfig = {
   logo: <Logo height={20} />,
   project: {
-    link: "https://github.com/shuding/nextra-docs-template",
+    link: "https://github.com/HuolalaTech/quaere",
   },
   chat: {
     link: "https://discord.com",
   },
-  docsRepositoryBase: "https://github.com/shuding/nextra-docs-template",
+  docsRepositoryBase: "https://github.com/liaoliao666/quaere-site/blob/main",
   footer: {
     text: "Quaere Docs",
   },

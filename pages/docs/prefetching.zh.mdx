@@ -14,12 +14,9 @@ import { createQueryClient } from 'quaere'
 const queryClient = createQueryClient()
 
 const userQuery = query({
-  fetcher: (variables: { id: number }) => fetch('/api/user?id=' + variables.id).then(res => res.json()),
+  fetcher: (variables: { id: number }) => fetch('/api/user?id=' + variables.id).then(r => r.json()),
 });
 
-// Preload the resource before rendering the User component below,
-// this prevents potential waterfalls in your application.
-// You can also start preloading when hovering the button or link, too.
 queryClient.prefetch({ query: userQuery, variables: { id: 1 } })
 
 function User() {
@@ -68,10 +65,10 @@ function App({ userId }) {
 
 ```jsx
 const userQuery = query({
-  fetcher: () => fetch("/api/user").then((res) => res.json()),
+  fetcher: () => fetch("/api/user").then((r) => r.json()),
 });
 const moviesQuery = query({
-  fetcher: () => fetch("/api/movies").then((res) => res.json()),
+  fetcher: () => fetch("/api/movies").then((r) => r.json()),
 });
 
 // should call before rendering

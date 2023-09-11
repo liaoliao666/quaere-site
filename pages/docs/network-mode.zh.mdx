@@ -1,18 +1,16 @@
 # 网络模式
 
-Quaere 提供了三种不同的网络模式，用于区分如果没有网络连接时应该如何处理[查询](/docs/queries)和[变更](../guides/mutations)的行为。这个模式可以针对每个查询/变更单独设置，或者通过查询/变更默认值全局设置。
+Quaere 提供了三种不同的网络模式，用于区分如果没有网络连接时应该如何处理[查询](/docs/api)和[变更](../docs/mutation)的行为。这个模式可以针对每个查询/变更单独设置，或者通过查询/变更默认值全局设置。
 
 由于 Quaere 最常用于与数据获取库一起进行数据获取，所以默认的网络模式是[在线](#network-mode-online)。
 
-## 网络模式：在线 [#network-mode-online]
+## 网络模式：online [#network-mode-online]
 
 在这种模式下，只有在有网络连接的情况下，查询和突变才会被触发。这是默认模式。如果发起一个查询的获取，如果由于没有网络连接而无法进行获取，它将始终保持在其当前状态（等待中，错误，成功）。
 
-> 请记住，仅检查“等待中”状态可能不足以显示加载符号。如果查询是第一次挂载并且没有网络连接，查询可以处于“等待中”状态，但`fetchStatus: 'paused'`。
-
 如果查询因为您在线而运行，但在获取仍在进行时您离线，Quaere 也会暂停重试机制。暂停的查询将在您重新获得网络连接后继续运行。这与`refetchOnReconnect`无关（在此模式中也默认为`true`），因为它不是一次性的获取，而是一次性的获取。如果在此期间已[取消](../guides/query-cancellation)查询，则不会继续运行。
 
-## 网络模式：始终 [#network-mode-always]
+## 网络模式：always [#network-mode-always]
 
 在这种模式下，Quaere 将始终进行获取并忽略在线/离线状态。如果您在无需网络连接的环境中使用 Quaere，例如仅从`AsyncStorage`读取数据，或者仅想从`fetcher`返回`Promise.resolve(5)`，则可能希望选择此模式。
 
@@ -20,7 +18,7 @@ Quaere 提供了三种不同的网络模式，用于区分如果没有网络连�
 - 如果失败，重试也不会暂停 - 查询将进入“错误”状态。
 - 在此模式中，默认情况下`refetchOnReconnect`为`false`，因为重新连接到网络不再是过时查询应该被重新获取的好指标。如果您愿意，仍然可以打开它。
 
-## 网络模式：离线优先 [#network-mode-offline]
+## 网络模式：offlineFirst [#network-mode-offline]
 
 这种模式是前两种选项之间的中间地带，其中 Quaere 将运行一次`fetcher`，然后暂停重试。如果您有一个 serviceWorker 拦截了像[离线优先 PWA](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Offline_Service_workers)中缓存的请求，或者如果您使用[Cache-Control 头](https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching#the_cache-control_header)进行 HTTP 缓存，这将非常有用。
 
