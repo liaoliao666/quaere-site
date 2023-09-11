@@ -1,4 +1,4 @@
-<p align="center" style="margin-bottom: 32px;">
+<p align="center" style="margin: 32px;">
   <a aria-label="NPM version" href="https://quaere-site.vercel.app">
     <img alt="" src="./assets/logo.svg">
   </a>
