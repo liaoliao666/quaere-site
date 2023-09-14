@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/liaoliao666/quaere-site.git"
+    "url": "git+https://github.com/HuolalaTech/quaere-site.git"
   },
   "author": "Shu Ding <g@shud.in>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/liaoliao666/quaere-site/issues"
+    "url": "https://github.com/HuolalaTech/quaere-site/issues"
   },
-  "homepage": "https://github.com/liaoliao666/quaere-site#readme",
+  "homepage": "https://github.com/HuolalaTech/quaere-site#readme",
   "dependencies": {
     "class-variance-authority": "^0.7.0",
     "next": "^13.0.6",

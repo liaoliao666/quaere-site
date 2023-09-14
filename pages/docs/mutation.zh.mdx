@@ -44,17 +44,17 @@ const { data, error, trigger, reset, isMutating } = useMutation({
   - 默认值为 `'online'`
   - 参见 [Network Mode](../guides/network-mode) 请求更多信息。
 
-- `onSuccess: (data: TData, variables: TVariables, obsMutation: ObservableMutation) => Promise<unknown> | unknown`
+- `onSuccess: (data: TData, variables: TVariables, mutationInfo: MutationInfo) => Promise<unknown> | unknown`
 
   - 此函数将在请求成功时触发，并传递请求的结果。
   - 如果返回一个 Promise，将在继续之前等待和解析该 Promise。
 
-- `onError: (err: TError, variables: TVariables, obsMutation: ObservableMutation) => Promise<unknown> | unknown`
+- `onError: (err: TError, variables: TVariables,  mutationInfo: MutationInfo) => Promise<unknown> | unknown`
 
   - 如果请求遇到错误，将触发此函数，并传递错误。
   - 如果返回一个 Promise，将在继续之前等待和解析该 Promise。
 
-- `onSettled: (data: TData, error: TError, variables: TVariables, obsMutation: ObservableMutation) => Promise<unknown> | unknown`
+- `onSettled: (data: TData, error: TError, variables: TVariables, mutationInfo: MutationInfo) => Promise<unknown> | unknown`
 
   - 此函数将在请求成功请求数据或遇到错误时触发，并传递数据或错误。
   - 如果返回一个 Promise，将在继续之前等待和解析该 Promise。

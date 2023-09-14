@@ -61,34 +61,6 @@ function App({ userId }) {
 }
 ```
 
-在 Suspense 模式下，你应该使用 `prefetch` 来避免瀑布流问题。
-
-```jsx
-const userQuery = query({
-  fetcher: () => fetch("/api/user").then((r) => r.json()),
-});
-const moviesQuery = query({
-  fetcher: () => fetch("/api/movies").then((r) => r.json()),
-});
-
-// should call before rendering
-queryClient.prefetch({ query: userQuery });
-queryClient.prefetch({ query: moviesQuery });
-
-const Page = () => {
-  // The below useQuery hooks will suspend the rendering, but the requests to `/api/user` and `/api/movies` have started by `preload` already,
-  // so the waterfall problem doesn't happen.
-  const { data: user } = useQuery({ query: userQuery, suspense: true });
-  const { data: movies } = useQuery({ query: moviesQuery, suspense: true });
-  return (
-    <div>
-      <User user={user} />
-      <Movies movies={movies} />
-    </div>
-  );
-};
-```
-
 ## 数据预填充 [#pre-fill-data]
 
 如果你想在 Quaere 缓存中预填充已经存在的数据，你可以使用 `initialData` 选项，例如：

@@ -15,7 +15,10 @@ const anQuery = query({
 你可以使用任何库来处理数据请求，比如 `fetch`
 
 ```js
-const anQuery = query({ fetcher: () => fetch(url).then((r) => r.json()) });
+const anQuery = query({
+  fetcher: (variables) =>
+    fetch(url, { body: JSON.stringify(variables) }).then((r) => r.json()),
+});
 ```
 
 ## Axios [#axios]
