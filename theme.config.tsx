@@ -7,9 +7,9 @@ const config: DocsThemeConfig = {
   project: {
     link: "https://github.com/HuolalaTech/quaere",
   },
-  chat: {
-    link: "https://discord.com",
-  },
+  // chat: {
+  //   link: "https://discord.com",
+  // },
   docsRepositoryBase: "https://github.com/liaoliao666/quaere-site/blob/main",
   footer: {
     text: "Quaere Docs",
@@ -20,6 +20,11 @@ const config: DocsThemeConfig = {
   ],
   search: {
     placeholder: "Search docs",
+  },
+  useNextSeoProps() {
+    return {
+      titleTemplate: "%s – Quaere",
+    };
   },
 };
 
