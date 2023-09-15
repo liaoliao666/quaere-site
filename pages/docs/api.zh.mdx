@@ -13,7 +13,7 @@ const anQuery = query({
 ```
 
 ```ts
-const { data, error, isLoading, isFetching, refetch, setData } = useQuery({
+const { data, error, isLoading, isFetching, refetch } = useQuery({
   // 必选，用于读取状态中的该 `query` 所对应的值。
   query: anQuery,
   // 传入 `fetcher` 函数的变量
