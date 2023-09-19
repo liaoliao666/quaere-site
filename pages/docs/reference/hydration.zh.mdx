@@ -5,7 +5,7 @@ title: hydration
 
 ## `dehydrate`
 
-`dehydrate` 创建一个 `cache` 的冻结状态，以后可以使用 `HydrationBoundary` 或 `hydrate` 进行还原。这对于将预取的查询从服务器传递到客户端或将查询持久化到 `localStorage` 或其他持久位置非常有用。默认情况下，它只包括当前成功的查询。
+`dehydrate` 创建一个 `cache` 的冻结状态，以后可以使用 `HydrationBoundary` 或 `hydrate` 进行还原。这对于将预取的查询从服务器传递到客户端或将查询持久化非常有用。默认情况下，它只包括当前成功的查询。
 
 ```tsx
 import { dehydrate } from "quaere";
@@ -37,22 +37,23 @@ const dehydratedState = dehydrate(queryClient, {
 
 ### 注意事项
 
-如果你需要脱水一个 `query`，你必须给它一个 `key`。如果没有 `key`，`query` 将不会被脱水。
+如果你需要脱水一个 `query`，你必须给设置选项 `key`。如果没有设置 `key`，`query` 将不会被脱水。
 
 ```tsx
-// 该query无法脱水
+// 该 query 无法被脱水
 const query1 = query({
   fetcher: () => fetch("xxx"),
 });
 
-// 该 query 可以脱水
+// 该 query 可以被脱水
 const query2 = query({
   key: "query2",
   fetcher: () => fetch("xxx"),
 });
 
 const dehydratedState = dehydrate(queryClient);
-console.log(dehydratedState); // dehydratedState 内只包含 query2 相关的查询
+// dehydratedState 内只包含 query2 相关的查询
+console.log(dehydratedState);
 ```
 
 某些存储系统（例如浏览器的 [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)）要求值可以序列化为 JSON。如果您需要脱水无法自动序列化为 JSON 的值（如 Error 或 undefined），则必须自己对它们进行序列化。由于默认情况下只包括成功的 `queries`，要包括 `Errors`，您必须提供 s`houldDehydrateQuery`，例如：
