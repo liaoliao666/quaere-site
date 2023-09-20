@@ -77,21 +77,51 @@ useQuery({
 
 ## 全局错误报告 [#global-error-report]
 
-你总是可以响应性的在组件内部得到 `error` 对象。但如果你想要全局处理错误，可以用 [`onError`](/docs/api#options) 事件：
+你总是可以响应性的在组件内部得到 `error` 对象。但如果你想要全局处理错误，可以创建自定义的 [`QueryCache`](/docs/reference/query-cache) 和 [`MutationCache`](/docs/reference/mutation-cache) 监听错误事件：
 
 ```jsx
+import { createQueryCache, createMutationCache } from "quaere"
+
+const queryCache = createQueryCache({
+  onError: (error) => {
+    console.log(error);
+  },
+});
+
+const mutationCache = createMutationCache({
+  onError: (error) => {
+    console.log(error);
+  },
+});
+
 const queryClient = createQueryClient({
-    queries: {
-      // query options
-      onError: (error) => {...}
-    },
-    mutations: {
-      // mutation options
-      onError: (error) => {...}
-    }
+    queryCache,
+    mutationCache
 })
 
 <QueryClientProvider client={queryClient}>
   <App />
 </QueryClientProvider>
+```
+
+## 组件外订阅特定 `query` 或 `mutation` 错误报告 [#query-error-report]
+
+```jsx
+const unsubscribe = queryCache.subscribe(
+  { query, variables },
+  ({ action, queryInfo }) => {
+    if (action.type === "error") {
+      console.log(queryInfo.error);
+    }
+  }
+);
+
+const unsubscribe = mutationCache.subscribe(
+  { mutation, variables },
+  ({ action, queryInfo }) => {
+    if (action.type === "error") {
+      console.log(queryInfo.error);
+    }
+  }
+);
 ```

@@ -56,7 +56,7 @@ const dehydratedState = dehydrate(queryClient);
 console.log(dehydratedState);
 ```
 
-某些存储系统（例如浏览器的 [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)）要求值可以序列化为 JSON。如果您需要脱水无法自动序列化为 JSON 的值（如 Error 或 undefined），则必须自己对它们进行序列化。由于默认情况下只包括成功的 `queries`，要包括 `Errors`，您必须提供 s`houldDehydrateQuery`，例如：
+某些存储系统（例如浏览器的 [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)）要求值可以序列化为 JSON。如果您需要脱水无法自动序列化为 JSON 的值（如 Error 或 undefined），则必须自己对它们进行序列化。由于默认情况下只包括成功的 `queries`，要包括 `Errors`，您必须提供 `shouldDehydrateQuery`，例如：
 
 ```tsx
 // 服务器

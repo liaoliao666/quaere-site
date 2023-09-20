@@ -2,9 +2,9 @@
 
 ## 手动预请求 [#programmatically-prefetch]
 
-QueryClient 提供了预取 `prefetch` API，用于以编程方式预取资源并将结果存储在缓存中。`prefetch` 接受查询 `query` 和 `variables` 作为参数。
+QueryClient 提供了预取 `` API，用于以编程方式预取资源并将结果存储在缓存中。`prefetchQuery`接受查询`query`和`variables` 作为参数。
 
-你甚至可以在 React 之外调用 `prefetch`。
+你甚至可以在 React 之外调用 `prefetchQuery`。
 
 ```jsx
 import { useState } from 'react'
@@ -17,7 +17,7 @@ const userQuery = query({
   fetcher: (variables: { id: number }) => fetch('/api/user?id=' + variables.id).then(r => r.json()),
 });
 
-queryClient.prefetch({ query: userQuery, variables: { id: 1 } })
+queryClient.prefetchQuery({ query: userQuery, variables: { id: 1 } })
 
 function User() {
   const { data } = useQuery({ query: userQuery, variables: { id: 1 } })
@@ -35,7 +35,7 @@ export default function App() {
 }
 ```
 
-在 React 渲染树内部，`prefetch` 也可以在事件处理或副作用中使用。
+在 React 渲染树内部，`prefetchQuery` 也可以在事件处理或副作用中使用。
 
 ```jsx
 function App({ userId }) {
@@ -43,7 +43,7 @@ function App({ userId }) {
 
   // preload in effects
   useEffect(() => {
-    queryClient.prefetch({ query: userQuery, variables: { id: userId } })
+    queryClient.prefetchQuery({ query: userQuery, variables: { id: userId } })
   }, [userId])
 
   return (
@@ -51,7 +51,7 @@ function App({ userId }) {
       <button
         onClick={() => setShow(true)}
         {/* preload in event callbacks */}
-        onHover={() => queryClient.prefetch({ query: userQuery, variables: { id: userId } })}
+        onHover={() => queryClient.prefetchQuery({ query: userQuery, variables: { id: userId } })}
       >
         Show User
       </button>

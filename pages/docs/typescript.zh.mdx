@@ -9,13 +9,13 @@ Quaere 对于使用 TypeScript 编写的 app 是友好的，开箱即用，类�
 ### useQuery [#usequery]
 
 ```typescript
-// variables 将被推断为 { id: number }, data 将被推断为 { title: string }
 const todoQuery = query({
   fetcher: (variables: { id: number }) => {
     return { title: "todo" };
   },
 });
 
+// variables 将被推断为 { id: number }, data 将被推断为 { title: string }
 const { data } = useQuery({ query: todoQuery, variables: { id: 1 } });
 ```
 
