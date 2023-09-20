@@ -104,7 +104,7 @@ const queryClient = createQueryClient({
 </QueryClientProvider>
 ```
 
-## 组件外订阅特定 `query` 或 `mutation` 错误报告 [#query-error-report]
+## 某个错误报告 [#query-error-report]
 
 ```jsx
 const unsubscribe = queryCache.subscribe(
@@ -118,9 +118,9 @@ const unsubscribe = queryCache.subscribe(
 
 const unsubscribe = mutationCache.subscribe(
   { mutation, variables },
-  ({ action, queryInfo }) => {
+  ({ action, mutationInfo }) => {
     if (action.type === "error") {
-      console.log(queryInfo.error);
+      console.log(mutationInfo.error);
     }
   }
 );

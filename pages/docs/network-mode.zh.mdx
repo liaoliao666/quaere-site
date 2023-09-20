@@ -20,7 +20,7 @@ Quaere 提供了三种不同的网络模式，用于区分如果没有网络连�
 
 ## 网络模式：offlineFirst [#network-mode-offline]
 
-这种模式是前两种选项之间的中间地带，其中 Quaere 将运行一次`fetcher`，然后暂停重试。如果您有一个 serviceWorker 拦截了像[离线优先 PWA](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Offline_Service_workers)中缓存的请求，或者如果您使用[Cache-Control 头](https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching#the_cache-control_header)进行 HTTP 缓存，这将非常有用。
+这种模式是前两种选项之间的中间地带，其中 Quaere 将首次运行一次`fetcher`，然后暂停重试。如果您有一个 serviceWorker 拦截了像[离线优先 PWA](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Offline_Service_workers)中缓存的请求，或者如果您使用[Cache-Control 头](https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching#the_cache-control_header)进行 HTTP 缓存，这将非常有用。
 
 在这些情况下，首次获取可能成功，因为它来自离线存储/缓存。但是，如果缓存未命中，则网络请求将失败，此时此模式将像“在线”请求一样行为 - 暂停重试。
 
