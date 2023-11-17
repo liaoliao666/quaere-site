@@ -10,9 +10,9 @@ const variables = useMutationState({
   select: (mutation) => mutation.state.variables,
 });
 
-// 请求所有 "post" 突变的所有数据
+// 过滤特定的突变的所有数据
 const data = useMutationState({
-  filters: { mutationKey: ["posts"] },
+  filters: { mutation: anMutation },
   select: (mutation) => mutation.state.data,
 });
 ```

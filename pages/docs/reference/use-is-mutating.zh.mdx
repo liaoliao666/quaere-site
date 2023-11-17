@@ -6,8 +6,8 @@
 import { useIsMutating } from "quaere";
 // 请求正在请求的突变数量
 const isMutating = useIsMutating();
-// 请求以 "posts" 为前缀的突变数量
-const isMutatingPosts = useIsMutating({ mutationKey: ["posts"] });
+// 过滤特定的突变的数量
+const isMutatingPosts = useIsMutating({ mutation: anMutation });
 ```
 
 **选项**

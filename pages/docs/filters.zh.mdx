@@ -50,8 +50,8 @@ await queryClient.refetchQueries({ query: postsQuery, type: "active" });
 // 请求所有正在请求的突变的数量
 await queryClient.isMutating();
 
-// 通过 mutationKey 过滤突变
-await queryClient.isMutating({ mutationKey: ["post"] });
+// 通过 mutationK 过滤突变
+await queryClient.isMutating({ mutation: anMutation });
 
 // 使用谓词函数过滤突变
 await queryClient.isMutating({
